@@ -18,6 +18,7 @@ This file came from python scripts - cleaning and preprocessing
 rm(list=ls())
 library('tidyverse')
 library('ez')
+library('BayesFactor')
 
 currentDir <- getwd()
 gpData = read_csv('gpData.csv',col_names=TRUE)
@@ -86,6 +87,9 @@ for (i in 1:nrow(mean_VSR)){
 }
 
 NrS_valid <- length(valid_sbjList)
+gpData_raw <-gpData
+gpData<- tibble()
+gpData <- gpData_raw[gpData_raw$sbjId %in% valid_sbjList, ]
 
 ```
 
@@ -114,15 +118,12 @@ for (S in valid_sbjList) {
   gpCondM1 <- bind_rows(gpCondM1, condM)
   
   
-  
   # 2 trialType(cued, choice) x 2 swProb (25%, 75%) x 2 trialType_sw (switch, repeat)
   condM2 <- mydata %>%
     group_by(trialType, swProb, trialType_sw) %>% 
     summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE))
   condM2 <- bind_cols(tibble(sbjId = rep(S,dim(condM2)[1])), condM2)
   gpCondM2 <- bind_rows(gpCondM2, condM2)
-  
-  
   
   
   # VSR: Choice data: 2 swProb (25%, 75%)
@@ -141,15 +142,6 @@ for (S in valid_sbjList) {
   condM4 <- bind_cols(tibble(sbjId = rep(S,dim(condM4)[1])), condM4)
   gpCondM4 <- bind_rows(gpCondM4, condM4)
   
-  # task biases
-  condM5 <- mydata %>%
-    filter(trialType=="choice") %>%
-    group_by(swProb) %>%  
-    summarise(tskRatio = mean(task_int))
-  condM5 <- bind_cols(tibble(sbjId = rep(S,dim(condM5)[1])), condM5)
-  gpCondM5 <- bind_rows(gpCondM5, condM5)
-
-
 }
 
 ```
@@ -210,22 +202,9 @@ print(z)
 
 ```
 
-#### 2-way ANOVA: cued trials(training): RT ~ 2 swProb x 2 trialType
+#### 2-way ANOVA: cued trials only across both phases: RT ~ 2 swProb x 2 trialType
 ```{r}
-z = ezANOVA(data = gpCondM1[gpCondM1$phase=="training",]
-            , dv = meanRT
-            , wid = sbjId
-            , within = .(swProb, trialType_sw)
-            , within_full = .(swProb, trialType_sw)
-            , type = 3
-            , detailed = TRUE)
-print(z)
-
-```
-
-#### 2-way ANOVA: cued trials(hybrid): RT ~ 2 swProb x 2 trialType
-```{r}
-z = ezANOVA(data = gpCondM1[gpCondM1$phase=="hybrid",]
+z = ezANOVA(data = gpCondM2[gpCondM2$trialType=="cued",]
             , dv = meanRT
             , wid = sbjId
             , within = .(swProb, trialType_sw)
@@ -292,8 +271,6 @@ VSR  %>%
 
 ```
 
-
-
 #### Figure 4: Voluntary task-switching rate (VSR) ~ 2 runHalf x 2 swProb (25%, 75%)
 ```{r Figure4, fig.width=4.5, fig.height=4}
 
@@ -337,3 +314,79 @@ print(paired_t_pval)
 
 
 ```
+#### Figure 5: Task Bias ~ 2 swProb (25%, 75%)
+```{r Figure5, fig.width=4.5, fig.height=4}
+df <- gpCondM3 %>% select(sbjId, swProb, tskRatio)
+colnames(df)[colnames(df)=="tskRatio"] <- "M"
+LnMSE_tskRatio <- getWSSE(df)
+
+
+tskBias <- gpCondM3 %>%
+  group_by(swProb) %>%
+  summarise(gpmeanTskRatio = mean(tskRatio), SE_tskRatio = LnMSE_tskRatio)
+
+tskRatio_25 = tskBias[1,"gpmeanTskRatio"]*100
+tskRatio_75 = tskBias[2,"gpmeanTskRatio"]*100
+
+print(paste("tskRatio_25% swProb =", sprintf("%.2f", tskRatio_25), "% of task 1"))
+print(paste("tskRatio_75% swProb =", sprintf("%.2f", tskRatio_75), "% of task 1"))
+
+t.test(formula = tskRatio~swProb, data = gpCondM3)
+
+tskBias  %>%
+  ggplot(aes(x=swProb, y = gpmeanTskRatio*100)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanTskRatio*100 + (1*SE_tskRatio*100), ymin =gpmeanTskRatio*100 -(1*SE_tskRatio*100)), 
+                position = dodge, width=.25) + 
+  ylab("mean Switch Rate(%)") + 
+  coord_cartesian(ylim = c(40,60)) +
+  scale_fill_grey()
+
+
+```
+
+```{r}
+gp_VSR <- aggregate(gpData$trialType_int,
+                             by = list(sub = gpData$sbjId,
+                                       run = gpData$runId_half,
+                                       swProb = gpData$swProb),
+                             FUN = 'mean', na.rm=TRUE)
+
+#anova <- aov(x~ run * swProb  + Error(sub/run*swProb), 
+#             data = gp_VSR)
+
+z = ezANOVA(data = gp_VSR
+            , dv = x
+            , wid = sub
+            , within = .(run, swProb)
+            , within_full = .(run, swProb)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+
+
+```
+#### results of the bayesian ANOVA
+
+```{r}
+bf <- anovaBF(x~ run * swProb  + sub, 
+              data = gp_VSR, 
+              whichRandom="sub")
+plot(bf)
+```
+
+
+
+```{r}
+set.seed(42)
+
+gp_VSR.test <- gp_VSR %>%
+  filter(sub %in% sample(gp_VSR$sub,20))
+
+bf.test <- anovaBF(x~ run * swProb  + sub, 
+              data = gp_VSR.test, 
+              whichRandom="sub")
+
+plot(bf.test)
+```
+

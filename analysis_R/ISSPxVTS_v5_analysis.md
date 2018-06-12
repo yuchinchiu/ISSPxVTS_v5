@@ -47,33 +47,19 @@ with black axis lines, no grids.
     ## 7 1.698310e-03     * 1.976514e-03
     ## 8 9.748026e-02       4.874684e-04
 
-#### 2-way ANOVA: cued trials(training): RT ~ 2 swProb x 2 trialType
+#### 2-way ANOVA: cued trials only across both phases: RT ~ 2 swProb x 2 trialType
 
     ## $ANOVA
     ##                Effect DFn DFd          SSn        SSd            F
-    ## 1         (Intercept)   1  39 1.076399e+08 1978476.78 2121.8111846
-    ## 2              swProb   1  39 3.613188e+02   44248.65    0.3184602
-    ## 3        trialType_sw   1  39 2.037066e+05  131887.08   60.2375714
-    ## 4 swProb:trialType_sw   1  39 8.604376e+03   36635.88    9.1596174
+    ## 1         (Intercept)   1  39 1.039515e+08 1617007.82 2507.1665511
+    ## 2              swProb   1  39 2.546949e+02   19124.12    0.5194019
+    ## 3        trialType_sw   1  39 1.574160e+05   86183.66   71.2342167
+    ## 4 swProb:trialType_sw   1  39 1.686519e+03   10863.59    6.0545593
     ##              p p<.05          ges
-    ## 1 1.282675e-35     * 0.9800489258
-    ## 2 5.757659e-01       0.0001648646
-    ## 3 1.976902e-09     * 0.0850565469
-    ## 4 4.367183e-03     * 0.0039113417
-
-#### 2-way ANOVA: cued trials(hybrid): RT ~ 2 swProb x 2 trialType
-
-    ## $ANOVA
-    ##                Effect DFn DFd          SSn        SSd            F
-    ## 1         (Intercept)   1  39 1.021218e+08 1548281.90 2.572367e+03
-    ## 2              swProb   1  39 2.028545e+01   27358.23 2.891753e-02
-    ## 3        trialType_sw   1  39 1.397841e+05   99112.74 5.500382e+01
-    ## 4 swProb:trialType_sw   1  39 9.753127e+02   15346.03 2.478634e+00
-    ##              p p<.05          ges
-    ## 1 3.188344e-37     * 9.837196e-01
-    ## 2 8.658487e-01       1.200238e-05
-    ## 3 5.783594e-09     * 7.638963e-02
-    ## 4 1.234809e-01       5.767415e-04
+    ## 1 5.221297e-37     * 0.9836004666
+    ## 2 4.753949e-01       0.0001469308
+    ## 3 2.474008e-10     * 0.0832626864
+    ## 4 1.840306e-02     * 0.0009721324
 
 #### Figure 2: ISSP(swProb x trialtype\_sw) effect in **accuracy** by phase
 
@@ -143,3 +129,41 @@ with black axis lines, no grids.
     ##   pval_ttest
     ##        <dbl>
     ## 1     0.1711
+
+#### Figure 5: Task Bias ~ 2 swProb (25%, 75%)
+
+    ## [1] "tskRatio_25% swProb = 52.36 % of task 1"
+
+    ## [1] "tskRatio_75% swProb = 49.94 % of task 1"
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  tskRatio by swProb
+    ## t = 0.35066, df = 77.91, p-value = 0.7268
+    ## alternative hypothesis: true difference in means is not equal to 0
+    ## 95 percent confidence interval:
+    ##  -0.1130073  0.1613268
+    ## sample estimates:
+    ## mean in group sw25% mean in group sw75% 
+    ##           0.5235982           0.4994385
+
+![](figure/Figure5-1.png)
+
+    ## $ANOVA
+    ##        Effect DFn DFd          SSn        SSd           F            p
+    ## 1 (Intercept)   1  39 3.461793e+01 0.04600918 29344.12273 1.004034e-57
+    ## 2         run   1  39 9.402544e-04 0.03355900     1.09270 3.023097e-01
+    ## 3      swProb   1  39 3.748825e+00 0.04762653  3069.80492 1.062718e-38
+    ## 4  run:swProb   1  39 1.576645e-03 0.04449157     1.38204 2.468810e-01
+    ##   p<.05         ges
+    ## 1     * 0.995065013
+    ## 2       0.005446755
+    ## 3     * 0.956208186
+    ## 4       0.009099722
+
+#### results of the bayesian ANOVA
+
+![](figure/unnamed-chunk-8-1.png)
+
+![](figure/unnamed-chunk-9-1.png)
