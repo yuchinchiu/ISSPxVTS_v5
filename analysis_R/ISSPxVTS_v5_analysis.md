@@ -66,7 +66,7 @@ RESULTS:
 
 ### 2. Choice trials
 
-#### Analyze with 2 swProb x trialType\_sw
+#### Analyze with RT/ACC with 2 swProb x trialType\_sw
 
 #### Figure 3: RT
 

@@ -161,7 +161,7 @@ print(z)
 ```
 
 ### 2. Choice trials
-#### Analyze with 2 swProb x trialType_sw 
+#### Analyze with RT/ACC with 2 swProb x trialType_sw 
 ```{r}
 gpCondM2 <- tibble()
 gpCondM2 <- gpData %>% 
