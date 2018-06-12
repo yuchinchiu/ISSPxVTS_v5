@@ -9,23 +9,16 @@ This file came from python scripts - cleaning and preprocessing
 Set up some good format, here I am using apatheme with white background,
 with black axis lines, no grids.
 
-#### First summarize individual subject's data
+RESULTS:
+--------
 
-#### Then, calculate the group mean and within-subject SEM using "getWSSE" (a function I wrote)
+### 1. Cued trials
 
-    ## [1] "Group means:"
+#### Analyze with 2 phase x 2 swProb x trialType\_sw
 
-    ## [1] "cued: swCost:75% = 56.70 ms"
-
-    ## [1] "cued: swCost:25% = 86.03 ms"
-
-### RESULTS:
-
-#### Figure 1: cued trials: ISSP(phase x swProb x trialtype\_sw) effect in **RT** (correct trials)
+#### Figure 1: RT
 
 ![](figure/Figure1-1.png)
-
-#### 3-way ANOVA: cued trials: RT ~ 2 phase x 2 swProb x 2 trialType\_sw
 
     ## $ANOVA
     ##                      Effect DFn DFd          SSn        SSd            F
@@ -47,25 +40,9 @@ with black axis lines, no grids.
     ## 7 1.698310e-03     * 1.976514e-03
     ## 8 9.748026e-02       4.874684e-04
 
-#### 2-way ANOVA: cued trials only across both phases: RT ~ 2 swProb x 2 trialType
-
-    ## $ANOVA
-    ##                Effect DFn DFd          SSn        SSd            F
-    ## 1         (Intercept)   1  39 1.039515e+08 1617007.82 2507.1665511
-    ## 2              swProb   1  39 2.546949e+02   19124.12    0.5194019
-    ## 3        trialType_sw   1  39 1.574160e+05   86183.66   71.2342167
-    ## 4 swProb:trialType_sw   1  39 1.686519e+03   10863.59    6.0545593
-    ##              p p<.05          ges
-    ## 1 5.221297e-37     * 0.9836004666
-    ## 2 4.753949e-01       0.0001469308
-    ## 3 2.474008e-10     * 0.0832626864
-    ## 4 1.840306e-02     * 0.0009721324
-
-#### Figure 2: ISSP(swProb x trialtype\_sw) effect in **accuracy** by phase
+#### Figure 2: Acc
 
 ![](figure/Figure2-1.png)
-
-#### 3-way ANOVA: cued trials: ACCURACY ~ 2 phase x 2 swProb x 2 trialType\_sw
 
     ## $ANOVA
     ##                      Effect DFn DFd          SSn        SSd            F
@@ -87,31 +64,77 @@ with black axis lines, no grids.
     ## 7 4.484509e-01       1.331002e-04
     ## 8 3.782184e-01       2.592963e-04
 
-#### Figure 3: Voluntary task-switching rate (VSR) ~ 2 swProb (25%, 75%)
+### 2. Choice trials
 
-    ## [1] "VSR_25% swProb = 34.31 %"
+#### Analyze with 2 swProb x trialType\_sw
 
-    ## [1] "VSR_75% swProb = 35.38 %"
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  meanVSR by swProb
-    ## t = -0.68882, df = 76.935, p-value = 0.493
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -0.04186157  0.02034377
-    ## sample estimates:
-    ## mean in group sw25% mean in group sw75% 
-    ##           0.3430741           0.3538330
+#### Figure 3: RT
 
 ![](figure/Figure3-1.png)
 
-#### Figure 4: Voluntary task-switching rate (VSR) ~ 2 runHalf x 2 swProb (25%, 75%)
+    ## $ANOVA
+    ##                Effect DFn DFd          SSn        SSd            F
+    ## 1         (Intercept)   1  39 8.866590e+07 1322206.53 2615.3024124
+    ## 2              swProb   1  39 2.200211e+03   40303.96    2.1290274
+    ## 3        trialType_sw   1  39 4.691439e+04   77335.71   23.6586860
+    ## 4 swProb:trialType_sw   1  39 5.076294e+02   26128.68    0.7576942
+    ##              p p<.05          ges
+    ## 1 2.319570e-37     * 0.9837352219
+    ## 2 1.525404e-01       0.0014986026
+    ## 3 1.921767e-05     * 0.0310098001
+    ## 4 3.893775e-01       0.0003461544
+
+#### Figure 4: ACC
 
 ![](figure/Figure4-1.png)
 
-#### ANOVA: switch rate ~ 2 run x 2 swProb
+    ## $ANOVA
+    ##                Effect DFn DFd          SSn        SSd            F
+    ## 1         (Intercept)   1  39 1.437530e+02 0.52168910 1.074656e+04
+    ## 2              swProb   1  39 5.774797e-04 0.03160517 7.125959e-01
+    ## 3        trialType_sw   1  39 2.645872e-03 0.07236377 1.425976e+00
+    ## 4 swProb:trialType_sw   1  39 1.114308e-04 0.03893647 1.116126e-01
+    ##              p p<.05          ges
+    ## 1 3.088136e-49     * 0.9953981043
+    ## 2 4.037319e-01       0.0008681661
+    ## 3 2.396350e-01       0.0039653953
+    ## 4 7.401056e-01       0.0001676392
+
+### 3. Choice trials
+
+#### Analyze VSR and tskRatio with 2 swProb
+
+#### Figure 5: VSR
+
+![](figure/Figure5-1.png)
+
+    ## $ANOVA
+    ##        Effect DFn DFd         SSn        SSd           F            p
+    ## 1 (Intercept)   1  39 9.713590675 0.32058598 1181.679975 8.858303e-31
+    ## 2      swProb   1  39 0.002315078 0.06000167    1.504759 2.272950e-01
+    ##   p<.05         ges
+    ## 1     * 0.962296322
+    ## 2       0.006046126
+
+#### Figure 6: taskBias
+
+![](figure/Figure6-1.png)
+
+    ## $ANOVA
+    ##        Effect DFn DFd         SSn       SSd          F            p p<.05
+    ## 1 (Intercept)   1  39 20.93208053 7.0846399 115.228318 3.311069e-13     *
+    ## 2      swProb   1  39  0.01167387 0.3204887   1.420583 2.405099e-01      
+    ##           ges
+    ## 1 0.738678268
+    ## 2 0.001573976
+
+### 4. Choice trials
+
+#### Analyze VSR with 2 runId\_half x 2 swProb
+
+#### Figure 7: VSR: 2 runHalf
+
+![](figure/Figure7-1.png)
 
     ## $ANOVA
     ##              Effect DFn DFd          SSn       SSd            F
@@ -125,45 +148,14 @@ with black axis lines, no grids.
     ## 3 2.211783e-01       0.003645254
     ## 4 4.809299e-01       0.002874501
 
-    ## # A tibble: 1 x 1
-    ##   pval_ttest
-    ##        <dbl>
-    ## 1     0.1711
-
-#### Figure 5: Task Bias ~ 2 swProb (25%, 75%)
-
-    ## [1] "tskRatio_25% swProb = 52.36 % of task 1"
-
-    ## [1] "tskRatio_75% swProb = 49.94 % of task 1"
-
-    ## 
-    ##  Welch Two Sample t-test
-    ## 
-    ## data:  tskRatio by swProb
-    ## t = 0.35066, df = 77.91, p-value = 0.7268
-    ## alternative hypothesis: true difference in means is not equal to 0
-    ## 95 percent confidence interval:
-    ##  -0.1130073  0.1613268
-    ## sample estimates:
-    ## mean in group sw25% mean in group sw75% 
-    ##           0.5235982           0.4994385
-
-![](figure/Figure5-1.png)
+![](figure/unnamed-chunk-6-1.png)
 
     ## $ANOVA
-    ##        Effect DFn DFd          SSn        SSd           F            p
-    ## 1 (Intercept)   1  39 3.461793e+01 0.04600918 29344.12273 1.004034e-57
-    ## 2         run   1  39 9.402544e-04 0.03355900     1.09270 3.023097e-01
-    ## 3      swProb   1  39 3.748825e+00 0.04762653  3069.80492 1.062718e-38
-    ## 4  run:swProb   1  39 1.576645e-03 0.04449157     1.38204 2.468810e-01
-    ##   p<.05         ges
-    ## 1     * 0.995065013
-    ## 2       0.005446755
-    ## 3     * 0.956208186
-    ## 4       0.009099722
+    ##        Effect DFn DFd        SSn        SSd           F            p p<.05
+    ## 1 (Intercept)   1  39 9.81576444 0.34242185 1117.962582 2.521939e-30     *
+    ## 2           p   1  39 0.01266919 0.09949547    4.966041 3.168538e-02     *
+    ##          ges
+    ## 1 0.95691840
+    ## 2 0.02786971
 
-#### results of the bayesian ANOVA
-
-![](figure/unnamed-chunk-8-1.png)
-
-![](figure/unnamed-chunk-9-1.png)
+![](figure/unnamed-chunk-7-1.png)

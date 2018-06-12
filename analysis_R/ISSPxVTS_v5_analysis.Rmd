@@ -50,7 +50,7 @@ gpData[which(gpData$phase=="hybrid" & gpData$runId>=6), "runId_half"]="SecondHal
 gpData[which(gpData$sbjACC==0), "sbjRT"]=NA
 
 # Turn a bunch of codings into categorical factors
-catVblList <- c("phase","runId","sbjId", "swProb", "task", "trialType_sw", "runId_half")
+catVblList <- c("phase","sbjId","runId", "swProb", "task", "trialType_sw", "runId_half")
 idx <- match(catVblList, colnames(gpData))
 for (c in idx[!is.na(idx)]){
   gpData[[c]] <- factor(gpData[[c]], ordered = TRUE)
@@ -58,6 +58,8 @@ for (c in idx[!is.na(idx)]){
 
 gpData$phase <- factor(gpData$phase, levels = c("training", "hybrid"), ordered=TRUE)
 gpData$trialType <- factor(gpData$trialType, levels = c("cued", "choice"), ordered=TRUE)
+gpData$trialType_sw <- factor(gpData$trialType_sw, levels = c("switch", "repeat"), ordered=TRUE)
+
 
 NrS <- length(unique(gpData$sbjId))
 
@@ -89,95 +91,33 @@ for (i in 1:nrow(mean_VSR)){
 NrS_valid <- length(valid_sbjList)
 gpData_raw <-gpData
 gpData<- tibble()
-gpData <- gpData_raw[gpData_raw$sbjId %in% valid_sbjList, ]
+gpData <- gpData_raw[gpData_raw$sbjId %in% valid_sbjList, ] 
 
 ```
-
-#### First summarize individual subject's data
-
+## RESULTS: 
+### 1. Cued trials
+#### Analyze with 2 phase x 2 swProb x trialType_sw 
 ```{r}
-
 gpCondM1 <- tibble()
-gpCondM2 <- tibble()
-gpCondM3 <- tibble()
-gpCondM4 <- tibble()
-gpCondM5 <- tibble()
-
-for (S in valid_sbjList) {
-  mydata <-  gpData %>% filter(sbjId==S) 
-  
-  
-  # 2 phase (training, hybrid) x 2 swProb (25%, 75%) x 2 trialType_sw (switch, repeat) for only the cued trials
-  condM <- mydata %>%
-    filter(trialType=="cued")  %>%
-    group_by(phase, swProb, trialType_sw) %>% 
-    summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE))
-  condM <- bind_cols(tibble(sbjId = rep(S,dim(condM)[1])), condM)
-  ISSP_training <- condM[2,"meanRT"] - condM[1,"meanRT"] - (condM[4,"meanRT"]-condM[3,"meanRT"])
-  ISSP_hybrid_cued <- condM[6,"meanRT"] - condM[5,"meanRT"] - (condM[8,"meanRT"]-condM[7,"meanRT"])
-  gpCondM1 <- bind_rows(gpCondM1, condM)
-  
-  
-  # 2 trialType(cued, choice) x 2 swProb (25%, 75%) x 2 trialType_sw (switch, repeat)
-  condM2 <- mydata %>%
-    group_by(trialType, swProb, trialType_sw) %>% 
-    summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE))
-  condM2 <- bind_cols(tibble(sbjId = rep(S,dim(condM2)[1])), condM2)
-  gpCondM2 <- bind_rows(gpCondM2, condM2)
-  
-  
-  # VSR: Choice data: 2 swProb (25%, 75%)
-  condM3 <- mydata %>%
-  filter(trialType=="choice")  %>%
-    group_by(swProb) %>% 
-    summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE), meanRT = mean(sbjRT, na.rm = TRUE),  tskRatio = mean(task_int, na.rm = TRUE))
-  condM3 <- bind_cols(tibble(sbjId = rep(S,dim(condM3)[1])), condM3)
-  gpCondM3 <- bind_rows(gpCondM3, condM3)
-  
-  # VSR: Choice data: 2 runHalf(run3-5, run6-8) x 2 swProb (25%, 75%)
-  condM4 <- mydata %>%
-    filter(trialType=="choice") %>%
-    group_by(runId_half, swProb) %>%
-    summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE), meanRT = mean(sbjRT, na.rm = TRUE),  tskRatio = mean(task_int, na.rm = TRUE))
-  condM4 <- bind_cols(tibble(sbjId = rep(S,dim(condM4)[1])), condM4)
-  gpCondM4 <- bind_rows(gpCondM4, condM4)
-  
-}
-
-```
-
-#### Then, calculate the group mean and within-subject SEM using "getWSSE" (a function I wrote)
-
-```{r ISSP analysis}
-
-# ISSP: cued trials: 2 phases x 2 swProb x 2 trialTpe_sw
+gpCondM1 <- gpData %>% 
+  filter(trialType=="cued") %>%
+  group_by(sbjId, phase, swProb, trialType_sw) %>%
+  summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE)) %>%  ungroup() 
 
 df <- gpCondM1 %>% select(-meanACC)
 colnames(df)[colnames(df)=="meanRT"] <- "M"
 LnMSE_rt <- getWSSE(df)
 
-
 df <- gpCondM1 %>% select(-meanRT)
 colnames(df)[colnames(df)=="meanACC"] <- "M"
 LnMSE_acc <- getWSSE(df)
-
 
 ISSP <- gpCondM1 %>%
   group_by(phase, swProb, trialType_sw) %>% 
   summarise(gpmeanRT = mean(meanRT), SE_rt = LnMSE_rt , gpmeanACC = mean(meanACC)*100, SE_acc = LnMSE_acc*100) 
 
-swCost_75 = ISSP[4,"gpmeanRT"]-ISSP[3,"gpmeanRT"]
-swCost_25 = ISSP[2,"gpmeanRT"]-ISSP[1,"gpmeanRT"]
-
-print('Group means:')
-print(paste("cued: swCost:75% =", sprintf("%.2f", swCost_75), "ms"))
-print(paste("cued: swCost:25% =", sprintf("%.2f", swCost_25), "ms"))
-
 ```
-
-
-### RESULTS: 
-#### Figure 1: cued trials: ISSP(phase x swProb x trialtype_sw) effect in **RT** (correct trials)
+#### Figure 1: RT
 ```{r Figure1}
 ISSP %>%
   ggplot(aes(x=swProb, y = gpmeanRT, fill = trialType_sw)) + 
@@ -187,10 +127,8 @@ ISSP %>%
   coord_cartesian(ylim = c(600,900)) +
   scale_fill_grey()
 
-```
-
 #### 3-way ANOVA: cued trials: RT ~ 2 phase x 2 swProb x 2 trialType_sw
-```{r}
+
 z = ezANOVA(data = gpCondM1
             , dv = meanRT
             , wid = sbjId
@@ -199,23 +137,8 @@ z = ezANOVA(data = gpCondM1
             , type = 3
             , detailed = TRUE)
 print(z)
-
 ```
-
-#### 2-way ANOVA: cued trials only across both phases: RT ~ 2 swProb x 2 trialType
-```{r}
-z = ezANOVA(data = gpCondM2[gpCondM2$trialType=="cued",]
-            , dv = meanRT
-            , wid = sbjId
-            , within = .(swProb, trialType_sw)
-            , within_full = .(swProb, trialType_sw)
-            , type = 3
-            , detailed = TRUE)
-print(z)
-
-```
-
-#### Figure 2: ISSP(swProb x trialtype_sw) effect in **accuracy** by phase
+#### Figure 2: Acc
 ```{r Figure2}
 ISSP %>%
   ggplot(aes(x=swProb, y = gpmeanACC, fill = trialType_sw)) + 
@@ -225,10 +148,8 @@ ISSP %>%
   coord_cartesian(ylim = c(80,100)) +
   scale_fill_grey()
 
-```
+#### 3-way ANOVA: cued trials: ACC ~ 2 phase x 2 swProb x 2 trialType_sw
 
-#### 3-way ANOVA: cued trials: ACCURACY ~ 2 phase x 2 swProb x 2 trialType_sw
-```{r}
 z = ezANOVA(data = gpCondM1
             , dv = meanACC
             , wid = sbjId
@@ -237,67 +158,175 @@ z = ezANOVA(data = gpCondM1
             , type = 3
             , detailed = TRUE)
 print(z)
-
 ```
 
-#### Figure 3: Voluntary task-switching rate (VSR) ~ 2 swProb (25%, 75%)
-```{r Figure3, fig.width=4.5, fig.height=4}
-df <- gpCondM3 %>% select(sbjId, swProb, meanVSR)
+### 2. Choice trials
+#### Analyze with 2 swProb x trialType_sw 
+```{r}
+gpCondM2 <- tibble()
+gpCondM2 <- gpData %>% 
+  filter(trialType=="choice") %>%
+  filter(trialType_sw=="switch" | trialType_sw=="repeat") %>%
+  group_by(sbjId, swProb, trialType_sw) %>%
+  summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE)) %>% ungroup() 
+
+
+df <- gpCondM2 %>% select(-meanACC)
+colnames(df)[colnames(df)=="meanRT"] <- "M"
+LnMSE_rt <- getWSSE(df)
+
+df <- gpCondM2 %>% select(-meanRT)
+colnames(df)[colnames(df)=="meanACC"] <- "M"
+LnMSE_acc <- getWSSE(df)
+
+ISSP_choice <- gpCondM2 %>%
+  group_by(swProb, trialType_sw) %>% 
+  summarise(gpmeanRT = mean(meanRT), SE_rt = LnMSE_rt , gpmeanACC = mean(meanACC)*100, SE_acc = LnMSE_acc*100) 
+```
+#### Figure 3: RT
+```{r Figure3}
+ISSP_choice %>%
+  ggplot(aes(x=swProb, y = gpmeanRT, fill = trialType_sw)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanRT + (1*SE_rt), ymin =gpmeanRT -(1*SE_rt)), position = dodge, width=.25)+ 
+  ylab("mean RT (correct trials)") + 
+  coord_cartesian(ylim = c(600,900)) +
+  scale_fill_grey()
+
+#### 2-way ANOVA: choice trials: RT ~ 2 swProb x 2 trialType_sw
+
+z = ezANOVA(data = gpCondM2
+            , dv = meanRT
+            , wid = sbjId
+            , within = .(swProb, trialType_sw)
+            , within_full = .(swProb, trialType_sw)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+```
+#### Figure 4: ACC
+```{r Figure4}
+ISSP_choice %>%
+  ggplot(aes(x=swProb, y = gpmeanACC, fill = trialType_sw)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanACC + (1*SE_acc), ymin =gpmeanACC -(1*SE_acc)), position = dodge, width=.25) + 
+  ylab("mean ACC") + 
+  coord_cartesian(ylim = c(80,100)) +
+  scale_fill_grey()
+
+#### 2-way ANOVA: choice trials: ACC ~ 2 swProb x 2 trialType_sw
+
+z = ezANOVA(data = gpCondM2
+            , dv = meanACC
+            , wid = sbjId
+            , within = .(swProb, trialType_sw)
+            , within_full = .(swProb, trialType_sw)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+```
+
+### 3. Choice trials
+#### Analyze VSR and tskRatio with 2 swProb 
+```{r}
+
+gpCondM3 <- tibble()
+gpCondM3 <- gpData %>% 
+  filter(trialType=="choice") %>%
+  filter(trialType_sw=="switch" | trialType_sw=="repeat") %>%
+  group_by(sbjId, swProb) %>%
+  summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanTskRatio = mean(task_int, na.rm = TRUE)) %>% ungroup() 
+
+df <- gpCondM3 %>% select(-meanTskRatio)
 colnames(df)[colnames(df)=="meanVSR"] <- "M"
 LnMSE_VSR <- getWSSE(df)
 
+df <- gpCondM3 %>% select(-meanVSR)
+colnames(df)[colnames(df)=="meanTskRatio"] <- "M"
+LnMSE_tskR <- getWSSE(df)
 
-VSR <- gpCondM3 %>%
-  group_by(swProb) %>%
-  summarise(gpmeanVSR = mean(meanVSR), SE_vsrRate = LnMSE_VSR)
+# summary for plotting later on
+gp_choice <- gpCondM3 %>%
+  group_by(swProb) %>% 
+  summarise(gpmeanVSR = mean(meanVSR)*100, SE_vsr = LnMSE_VSR*100 , gpmeanTskRatio = mean(meanTskRatio)*100, SE_tskR = LnMSE_tskR*100) 
 
-VSR_25 = VSR[1,"gpmeanVSR"]*100
-VSR_75 = VSR[2,"gpmeanVSR"]*100
-
-print(paste("VSR_25% swProb =", sprintf("%.2f", VSR_25), "%"))
-print(paste("VSR_75% swProb =", sprintf("%.2f", VSR_75), "%"))
-
-t.test(formula = meanVSR~swProb, data = gpCondM3)
-
-VSR  %>%
-  ggplot(aes(x=swProb, y = gpmeanVSR*100)) + 
+```
+#### Figure 5: VSR
+```{r Figure5}
+gp_choice %>%
+  ggplot(aes(x=swProb, y = gpmeanVSR)) + 
   geom_col(position = dodge) + 
-  geom_errorbar(aes(ymax = gpmeanVSR*100 + (1*SE_vsrRate*100), ymin =gpmeanVSR*100 -(1*SE_vsrRate*100)), 
-                position = dodge, width=.25) + 
-  ylab("mean Switch Rate(%)") + 
+  geom_errorbar(aes(ymax = gpmeanVSR + (1*SE_vsr), ymin =gpmeanVSR -(1*SE_vsr)), position = dodge, width=.25) + 
+  ylab("mean VSR") + 
   coord_cartesian(ylim = c(30,40)) +
   scale_fill_grey()
 
-
+#### 1-way ANOVA: choice trials: VSR ~ 2 swProb 
+z = ezANOVA(data = gpCondM3
+            , dv = meanVSR
+            , wid = sbjId
+            , within = .(swProb)
+            , within_full = .(swProb)
+            , type = 3
+            , detailed = TRUE)
+print(z)
 ```
-
-#### Figure 4: Voluntary task-switching rate (VSR) ~ 2 runHalf x 2 swProb (25%, 75%)
-```{r Figure4, fig.width=4.5, fig.height=4}
-
-df <- gpCondM4 %>% select(sbjId, runId_half, swProb, meanVSR)
-colnames(df)[colnames(df)=="meanVSR"] <- "M"
-LnMSE_runXswRate <- getWSSE(df)
-
-
-RunXSwRate <- gpCondM4 %>%
-  group_by(runId_half, swProb) %>% 
-  summarise(gpmeanSwRate = mean(meanVSR), SE_rate = LnMSE_runXswRate) 
-
-RunXSwRate  %>%
-  ggplot(aes(x=runId_half, y = gpmeanSwRate*100, fill = swProb)) + 
+#### Figure 6: taskBias
+```{r Figure6}
+gp_choice %>%
+  ggplot(aes(x=swProb, y = gpmeanTskRatio)) + 
   geom_col(position = dodge) + 
-  geom_errorbar(aes(ymax = gpmeanSwRate*100 + (1*SE_rate*100), ymin =gpmeanSwRate*100 -(1*SE_rate*100)), 
-                position = dodge, width=.25) + 
-  ylab("mean Switch Rate(%)") + 
-  coord_cartesian(ylim = c(30,40)) +
+  geom_errorbar(aes(ymax = gpmeanTskRatio + (1*SE_tskR), ymin =gpmeanTskRatio -(1*SE_tskR)), position = dodge, width=.25) + 
+  ylab("mean task Ratio") + 
+  coord_cartesian(ylim = c(40,60)) +
   scale_fill_grey()
 
+#### 1-way ANOVA: choice trials: tskRatio ~ 2 swProb 
 
+z = ezANOVA(data = gpCondM3
+            , dv = meanTskRatio
+            , wid = sbjId
+            , within = .(swProb)
+            , within_full = .(swProb)
+            , type = 3
+            , detailed = TRUE)
+print(z)
 ```
 
 
-#### ANOVA: switch rate ~ 2 run x 2 swProb
+
+### 4. Choice trials
+#### Analyze VSR  with 2 runId_half x 2 swProb 
 ```{r}
+
+gpCondM4 <- tibble()
+gpCondM4 <- gpData %>% 
+  filter(trialType=="choice") %>%
+  filter(trialType_sw=="switch" | trialType_sw=="repeat") %>%
+  group_by(sbjId, runId_half, swProb) %>%
+  summarise(meanVSR = mean(trialType_int, na.rm = TRUE)) %>% ungroup() 
+
+df <- gpCondM4
+colnames(df)[colnames(df)=="meanVSR"] <- "M"
+LnMSE_VSR <- getWSSE(df)
+
+# summary for plotting later on
+gp_choice2 <- gpCondM4 %>%
+  group_by(runId_half, swProb) %>% 
+  summarise(gpmeanVSR = mean(meanVSR)*100, SE_vsr = LnMSE_VSR*100) 
+
+```
+#### Figure 7: VSR: 2 runHalf
+```{r Figure7}
+gp_choice2 %>%
+  ggplot(aes(x=swProb, y = gpmeanVSR, fill = runId_half)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanVSR + (1*SE_vsr), ymin =gpmeanVSR -(1*SE_vsr)), position = dodge, width=.25) +
+  ylab("mean VSR") + 
+  coord_cartesian(ylim = c(30,40)) +
+  scale_fill_grey()
+
+#### 1-way ANOVA: choice trials: VSR ~ 2 swProb 
 z = ezANOVA(data = gpCondM4
             , dv = meanVSR
             , wid = sbjId
@@ -306,87 +335,55 @@ z = ezANOVA(data = gpCondM4
             , type = 3
             , detailed = TRUE)
 print(z)
-
-
-paired_t_pval <-gpCondM4 %>% filter(runId_half=="SecondHalf") %>% summarise(pval_ttest = t.test(meanVSR~swProb, data=., paired = TRUE)$p.value)
-
-print(paired_t_pval)
-
-
 ```
-#### Figure 5: Task Bias ~ 2 swProb (25%, 75%)
-```{r Figure5, fig.width=4.5, fig.height=4}
-df <- gpCondM3 %>% select(sbjId, swProb, tskRatio)
-colnames(df)[colnames(df)=="tskRatio"] <- "M"
-LnMSE_tskRatio <- getWSSE(df)
-
-
-tskBias <- gpCondM3 %>%
-  group_by(swProb) %>%
-  summarise(gpmeanTskRatio = mean(tskRatio), SE_tskRatio = LnMSE_tskRatio)
-
-tskRatio_25 = tskBias[1,"gpmeanTskRatio"]*100
-tskRatio_75 = tskBias[2,"gpmeanTskRatio"]*100
-
-print(paste("tskRatio_25% swProb =", sprintf("%.2f", tskRatio_25), "% of task 1"))
-print(paste("tskRatio_75% swProb =", sprintf("%.2f", tskRatio_75), "% of task 1"))
-
-t.test(formula = tskRatio~swProb, data = gpCondM3)
-
-tskBias  %>%
-  ggplot(aes(x=swProb, y = gpmeanTskRatio*100)) + 
-  geom_col(position = dodge) + 
-  geom_errorbar(aes(ymax = gpmeanTskRatio*100 + (1*SE_tskRatio*100), ymin =gpmeanTskRatio*100 -(1*SE_tskRatio*100)), 
-                position = dodge, width=.25) + 
-  ylab("mean Switch Rate(%)") + 
-  coord_cartesian(ylim = c(40,60)) +
-  scale_fill_grey()
-
-
-```
-
 ```{r}
-gp_VSR <- aggregate(gpData$trialType_int,
-                             by = list(sub = gpData$sbjId,
-                                       run = gpData$runId_half,
-                                       swProb = gpData$swProb),
-                             FUN = 'mean', na.rm=TRUE)
+tt <- gpData %>% 
+  filter(trialType=="choice") %>%
+  filter(trialType_sw=="switch" | trialType_sw=="repeat")
 
-#anova <- aov(x~ run * swProb  + Error(sub/run*swProb), 
-#             data = gp_VSR)
+data.anova.mean <- aggregate(tt$trialType_int,
+                             by = list(sub = tt$sbjId,
+                                       u = tt$runId_half,
+                                       p = tt$swProb),
+                             FUN = 'mean', na.rm = TRUE)
+bf <- anovaBF(x ~ u * p + sub, data = data.anova.mean, 
+             whichRandom="sub")
+plot(bf)
 
-z = ezANOVA(data = gp_VSR
+#dd = as.data.frame(gpCondM4)
+#bf <- anovaBF(meanVSR ~ run_half * swProb  + sbjId, data = dd, whichRandom="sbjId")
+
+
+```
+```{r}
+tt <- gpData %>% 
+  filter(trialType=="choice") %>%
+  filter(runId>=5) %>%
+  filter(trialType_sw=="switch" | trialType_sw=="repeat")
+
+
+data.anova.mean <- aggregate(tt$trialType_int,
+                             by = list(sub = tt$sbjId,
+                                       p = tt$swProb),
+                             FUN = 'mean', na.rm = TRUE)
+
+z = ezANOVA(data = data.anova.mean
             , dv = x
             , wid = sub
-            , within = .(run, swProb)
-            , within_full = .(run, swProb)
+            , within = .(p)
+            , within_full = .(p)
             , type = 3
             , detailed = TRUE)
 print(z)
 
+anova <- aov(x ~  p + Error(sub/(p)),
+                    data = data.anova.mean)
 
-```
-#### results of the bayesian ANOVA
 
-```{r}
-bf <- anovaBF(x~ run * swProb  + sub, 
-              data = gp_VSR, 
-              whichRandom="sub")
+bf <- anovaBF(x ~ p + sub, data = data.anova.mean, 
+             whichRandom="sub")
 plot(bf)
+
 ```
 
-
-
-```{r}
-set.seed(42)
-
-gp_VSR.test <- gp_VSR %>%
-  filter(sub %in% sample(gp_VSR$sub,20))
-
-bf.test <- anovaBF(x~ run * swProb  + sub, 
-              data = gp_VSR.test, 
-              whichRandom="sub")
-
-plot(bf.test)
-```
 
