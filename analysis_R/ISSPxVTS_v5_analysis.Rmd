@@ -1,0 +1,339 @@
+---
+title: "ISSPxVTS_v5 analysis"
+author: "Yu-Chin Chiu"
+date: "June 11, 2018"
+output: md_document
+---
+
+
+```{r knitSetup}
+knitr::opts_chunk$set(fig.width=6, fig.height=4, fig.path='figure/', echo = FALSE, warning = FALSE, message = FALSE)
+
+```
+
+#### First, Set up the environment and load the data: gpData.csv 
+This file came from python scripts - cleaning and preprocessing
+
+```{r setup}
+rm(list=ls())
+library('tidyverse')
+library('ez')
+
+currentDir <- getwd()
+gpData = read_csv('gpData.csv',col_names=TRUE)
+source("getWSSE.R")
+
+```
+
+
+#### Set up some formating for the plots
+Set up some good format, here I am using apatheme with white background, with black axis lines, no grids.
+
+```{r fig apa-format}
+apatheme = theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.line=element_line())
+dodge = position_dodge(width=0.9)
+```
+
+
+```{r analysis_prep}
+# create a new variable called "run_half": run 3-5: FirstHalf, run 6-8: secondHalf
+
+gpData[which(gpData$phase=="hybrid" & gpData$runId<=5), "runId_half"]="firstHalf"
+gpData[which(gpData$phase=="hybrid" & gpData$runId>=6), "runId_half"]="SecondHalf"
+
+# mark trials with ACC=0, RT=NA, only analyze CORRECT TRIALS' RT
+gpData[which(gpData$sbjACC==0), "sbjRT"]=NA
+
+# Turn a bunch of codings into categorical factors
+catVblList <- c("phase","runId","sbjId", "swProb", "task", "trialType_sw", "runId_half")
+idx <- match(catVblList, colnames(gpData))
+for (c in idx[!is.na(idx)]){
+  gpData[[c]] <- factor(gpData[[c]], ordered = TRUE)
+}
+
+gpData$phase <- factor(gpData$phase, levels = c("training", "hybrid"), ordered=TRUE)
+gpData$trialType <- factor(gpData$trialType, levels = c("cued", "choice"), ordered=TRUE)
+
+NrS <- length(unique(gpData$sbjId))
+
+```
+
+```{r}
+# exclude subjects with low task-switching accuracy and very low VSR
+mean_tsACC_training <- gpData %>% 
+  filter(phase=="training") %>%
+  group_by(sbjId) %>%
+  summarise(tsACC = mean(sbjACC, na.rm = TRUE))
+
+mean_VSR <- gpData %>% 
+  filter(phase=="hybrid" & trialType=="choice") %>%
+  group_by(sbjId) %>%
+  summarise(VSR = mean(trialType_int, na.rm = TRUE))  
+
+valid_sbjList <- c(NULL)
+cnt=0
+for (i in 1:nrow(mean_VSR)){
+  if (mean_tsACC_training$tsACC[i] < .70 | mean_VSR$VSR[i] < .10) {
+  }
+  else{
+    cnt=cnt+1
+    valid_sbjList[cnt]<- mean_tsACC_training$sbjId[i]
+  }
+}
+
+NrS_valid <- length(valid_sbjList)
+
+```
+
+#### First summarize individual subject's data
+
+```{r}
+
+gpCondM1 <- tibble()
+gpCondM2 <- tibble()
+gpCondM3 <- tibble()
+gpCondM4 <- tibble()
+gpCondM5 <- tibble()
+
+for (S in valid_sbjList) {
+  mydata <-  gpData %>% filter(sbjId==S) 
+  
+  
+  # 2 phase (training, hybrid) x 2 swProb (25%, 75%) x 2 trialType_sw (switch, repeat) for only the cued trials
+  condM <- mydata %>%
+    filter(trialType=="cued")  %>%
+    group_by(phase, swProb, trialType_sw) %>% 
+    summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE))
+  condM <- bind_cols(tibble(sbjId = rep(S,dim(condM)[1])), condM)
+  ISSP_training <- condM[2,"meanRT"] - condM[1,"meanRT"] - (condM[4,"meanRT"]-condM[3,"meanRT"])
+  ISSP_hybrid_cued <- condM[6,"meanRT"] - condM[5,"meanRT"] - (condM[8,"meanRT"]-condM[7,"meanRT"])
+  gpCondM1 <- bind_rows(gpCondM1, condM)
+  
+  
+  
+  # 2 trialType(cued, choice) x 2 swProb (25%, 75%) x 2 trialType_sw (switch, repeat)
+  condM2 <- mydata %>%
+    group_by(trialType, swProb, trialType_sw) %>% 
+    summarise(meanRT = mean(sbjRT, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE))
+  condM2 <- bind_cols(tibble(sbjId = rep(S,dim(condM2)[1])), condM2)
+  gpCondM2 <- bind_rows(gpCondM2, condM2)
+  
+  
+  
+  
+  # VSR: Choice data: 2 swProb (25%, 75%)
+  condM3 <- mydata %>%
+  filter(trialType=="choice")  %>%
+    group_by(swProb) %>% 
+    summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE), meanRT = mean(sbjRT, na.rm = TRUE),  tskRatio = mean(task_int, na.rm = TRUE))
+  condM3 <- bind_cols(tibble(sbjId = rep(S,dim(condM3)[1])), condM3)
+  gpCondM3 <- bind_rows(gpCondM3, condM3)
+  
+  # VSR: Choice data: 2 runHalf(run3-5, run6-8) x 2 swProb (25%, 75%)
+  condM4 <- mydata %>%
+    filter(trialType=="choice") %>%
+    group_by(runId_half, swProb) %>%
+    summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanACC = mean(sbjACC, na.rm = TRUE), meanRT = mean(sbjRT, na.rm = TRUE),  tskRatio = mean(task_int, na.rm = TRUE))
+  condM4 <- bind_cols(tibble(sbjId = rep(S,dim(condM4)[1])), condM4)
+  gpCondM4 <- bind_rows(gpCondM4, condM4)
+  
+  # task biases
+  condM5 <- mydata %>%
+    filter(trialType=="choice") %>%
+    group_by(swProb) %>%  
+    summarise(tskRatio = mean(task_int))
+  condM5 <- bind_cols(tibble(sbjId = rep(S,dim(condM5)[1])), condM5)
+  gpCondM5 <- bind_rows(gpCondM5, condM5)
+
+
+}
+
+```
+
+#### Then, calculate the group mean and within-subject SEM using "getWSSE" (a function I wrote)
+
+```{r ISSP analysis}
+
+# ISSP: cued trials: 2 phases x 2 swProb x 2 trialTpe_sw
+
+df <- gpCondM1 %>% select(-meanACC)
+colnames(df)[colnames(df)=="meanRT"] <- "M"
+LnMSE_rt <- getWSSE(df)
+
+
+df <- gpCondM1 %>% select(-meanRT)
+colnames(df)[colnames(df)=="meanACC"] <- "M"
+LnMSE_acc <- getWSSE(df)
+
+
+ISSP <- gpCondM1 %>%
+  group_by(phase, swProb, trialType_sw) %>% 
+  summarise(gpmeanRT = mean(meanRT), SE_rt = LnMSE_rt , gpmeanACC = mean(meanACC)*100, SE_acc = LnMSE_acc*100) 
+
+swCost_75 = ISSP[4,"gpmeanRT"]-ISSP[3,"gpmeanRT"]
+swCost_25 = ISSP[2,"gpmeanRT"]-ISSP[1,"gpmeanRT"]
+
+print('Group means:')
+print(paste("cued: swCost:75% =", sprintf("%.2f", swCost_75), "ms"))
+print(paste("cued: swCost:25% =", sprintf("%.2f", swCost_25), "ms"))
+
+```
+
+
+### RESULTS: 
+#### Figure 1: cued trials: ISSP(phase x swProb x trialtype_sw) effect in **RT** (correct trials)
+```{r Figure1}
+ISSP %>%
+  ggplot(aes(x=swProb, y = gpmeanRT, fill = trialType_sw)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanRT + (1*SE_rt), ymin =gpmeanRT -(1*SE_rt)), position = dodge, width=.25) + facet_grid(.~phase) + 
+  ylab("mean RT (correct trials)") + 
+  coord_cartesian(ylim = c(600,900)) +
+  scale_fill_grey()
+
+```
+
+#### 3-way ANOVA: cued trials: RT ~ 2 phase x 2 swProb x 2 trialType_sw
+```{r}
+z = ezANOVA(data = gpCondM1
+            , dv = meanRT
+            , wid = sbjId
+            , within = .(phase, swProb, trialType_sw)
+            , within_full = .(phase, swProb, trialType_sw)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+
+```
+
+#### 2-way ANOVA: cued trials(training): RT ~ 2 swProb x 2 trialType
+```{r}
+z = ezANOVA(data = gpCondM1[gpCondM1$phase=="training",]
+            , dv = meanRT
+            , wid = sbjId
+            , within = .(swProb, trialType_sw)
+            , within_full = .(swProb, trialType_sw)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+
+```
+
+#### 2-way ANOVA: cued trials(hybrid): RT ~ 2 swProb x 2 trialType
+```{r}
+z = ezANOVA(data = gpCondM1[gpCondM1$phase=="hybrid",]
+            , dv = meanRT
+            , wid = sbjId
+            , within = .(swProb, trialType_sw)
+            , within_full = .(swProb, trialType_sw)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+
+```
+
+#### Figure 2: ISSP(swProb x trialtype_sw) effect in **accuracy** by phase
+```{r Figure2}
+ISSP %>%
+  ggplot(aes(x=swProb, y = gpmeanACC, fill = trialType_sw)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanACC + (1*SE_acc), ymin =gpmeanACC -(1*SE_acc)), position = dodge, width=.25) + facet_grid(.~phase) + 
+  ylab("mean ACC") + 
+  coord_cartesian(ylim = c(80,100)) +
+  scale_fill_grey()
+
+```
+
+#### 3-way ANOVA: cued trials: ACCURACY ~ 2 phase x 2 swProb x 2 trialType_sw
+```{r}
+z = ezANOVA(data = gpCondM1
+            , dv = meanACC
+            , wid = sbjId
+            , within = .(phase, swProb, trialType_sw)
+            , within_full = .(phase, swProb, trialType_sw)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+
+```
+
+#### Figure 3: Voluntary task-switching rate (VSR) ~ 2 swProb (25%, 75%)
+```{r Figure3, fig.width=4.5, fig.height=4}
+df <- gpCondM3 %>% select(sbjId, swProb, meanVSR)
+colnames(df)[colnames(df)=="meanVSR"] <- "M"
+LnMSE_VSR <- getWSSE(df)
+
+
+VSR <- gpCondM3 %>%
+  group_by(swProb) %>%
+  summarise(gpmeanVSR = mean(meanVSR), SE_vsrRate = LnMSE_VSR)
+
+VSR_25 = VSR[1,"gpmeanVSR"]*100
+VSR_75 = VSR[2,"gpmeanVSR"]*100
+
+print(paste("VSR_25% swProb =", sprintf("%.2f", VSR_25), "%"))
+print(paste("VSR_75% swProb =", sprintf("%.2f", VSR_75), "%"))
+
+t.test(formula = meanVSR~swProb, data = gpCondM3)
+
+VSR  %>%
+  ggplot(aes(x=swProb, y = gpmeanVSR*100)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanVSR*100 + (1*SE_vsrRate*100), ymin =gpmeanVSR*100 -(1*SE_vsrRate*100)), 
+                position = dodge, width=.25) + 
+  ylab("mean Switch Rate(%)") + 
+  coord_cartesian(ylim = c(30,40)) +
+  scale_fill_grey()
+
+
+```
+
+
+
+#### Figure 4: Voluntary task-switching rate (VSR) ~ 2 runHalf x 2 swProb (25%, 75%)
+```{r Figure4, fig.width=4.5, fig.height=4}
+
+df <- gpCondM4 %>% select(sbjId, runId_half, swProb, meanVSR)
+colnames(df)[colnames(df)=="meanVSR"] <- "M"
+LnMSE_runXswRate <- getWSSE(df)
+
+
+RunXSwRate <- gpCondM4 %>%
+  group_by(runId_half, swProb) %>% 
+  summarise(gpmeanSwRate = mean(meanVSR), SE_rate = LnMSE_runXswRate) 
+
+RunXSwRate  %>%
+  ggplot(aes(x=runId_half, y = gpmeanSwRate*100, fill = swProb)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanSwRate*100 + (1*SE_rate*100), ymin =gpmeanSwRate*100 -(1*SE_rate*100)), 
+                position = dodge, width=.25) + 
+  ylab("mean Switch Rate(%)") + 
+  coord_cartesian(ylim = c(30,40)) +
+  scale_fill_grey()
+
+
+```
+
+
+#### ANOVA: switch rate ~ 2 run x 2 swProb
+```{r}
+z = ezANOVA(data = gpCondM4
+            , dv = meanVSR
+            , wid = sbjId
+            , within = .(runId_half, swProb)
+            , within_full = .(runId_half, swProb)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+
+
+paired_t_pval <-gpCondM4 %>% filter(runId_half=="SecondHalf") %>% summarise(pval_ttest = t.test(meanVSR~swProb, data=., paired = TRUE)$p.value)
+
+print(paired_t_pval)
+
+
+```
