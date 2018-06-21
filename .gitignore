@@ -7,8 +7,8 @@ analysis_py/.ipynb_checkpoints
 analysis_py/__pycache__
 *.csv
 .Rproj.user
-analysis_R/.RData
+analysis_R/*.RData
 analysis_R/.Rhistory
 analysis_R/*csv
 analysis_R/.Rproj
-analysis_R/.doc
+analysis_R/*.doc
