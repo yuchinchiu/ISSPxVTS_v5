@@ -2,12 +2,13 @@
 title: "ISSPxVTS_v5 analysis"
 author: "Yu-Chin Chiu"
 date: "June 11, 2018"
-output: md_document
+output: github_document
 ---
 
 
 ```{r knitSetup}
 knitr::opts_chunk$set(fig.width=6, fig.height=4, fig.path='figure/', echo = FALSE, warning = FALSE, message = FALSE)
+options(width = 9999)
 
 ```
 
@@ -19,6 +20,7 @@ rm(list=ls())
 library('tidyverse')
 library('ez')
 library('BayesFactor')
+library('apaTables')
 
 currentDir <- getwd()
 gpData = read_csv('gpData.csv',col_names=TRUE)
@@ -37,14 +39,19 @@ apatheme = theme_bw()+
         panel.border = element_blank(),
         axis.line=element_line())
 dodge = position_dodge(width=0.9)
+
+
 ```
 
 
 ```{r analysis_prep}
-# create a new variable called "run_half": run 3-5: FirstHalf, run 6-8: secondHalf
+# create a new variable called "run_half": run3,4 = B1, run5-6 = B2, run7-8 = B3
 
-gpData[which(gpData$phase=="hybrid" & gpData$runId<=5), "runId_half"]="firstHalf"
-gpData[which(gpData$phase=="hybrid" & gpData$runId>=6), "runId_half"]="SecondHalf"
+gpData[which(gpData$phase=="hybrid" & gpData$runId==3), "runId_half"]="B1"
+gpData[which(gpData$phase=="hybrid" & gpData$runId==4), "runId_half"]="B1"
+gpData[which(gpData$phase=="hybrid" & gpData$runId==5), "runId_half"]="B2"
+gpData[which(gpData$phase=="hybrid" & gpData$runId==6), "runId_half"]="B2"
+gpData[which(gpData$phase=="hybrid" & gpData$runId>=7), "runId_half"]="B3"
 
 # mark trials with ACC=0, RT=NA, only analyze CORRECT TRIALS' RT
 gpData[which(gpData$sbjACC==0), "sbjRT"]=NA
@@ -62,11 +69,17 @@ gpData$trialType_sw <- factor(gpData$trialType_sw, levels = c("switch", "repeat"
 
 
 NrS <- length(unique(gpData$sbjId))
+NrS
 
 ```
 
 ```{r}
 # exclude subjects with low task-switching accuracy and very low VSR
+mean_tsACC_cuedTrials <- gpData %>% 
+  filter(trialType=="cued") %>%
+  group_by(sbjId) %>%
+  summarise(tsACC = mean(sbjACC, na.rm = TRUE))
+
 mean_tsACC_training <- gpData %>% 
   filter(phase=="training") %>%
   group_by(sbjId) %>%
@@ -80,7 +93,7 @@ mean_VSR <- gpData %>%
 valid_sbjList <- c(NULL)
 cnt=0
 for (i in 1:nrow(mean_VSR)){
-  if (mean_tsACC_training$tsACC[i] < .70 | mean_VSR$VSR[i] < .10) {
+  if (mean_tsACC_cuedTrials$tsACC[i] < .80 | mean_VSR$VSR[i] < .10) {
   }
   else{
     cnt=cnt+1
@@ -89,6 +102,9 @@ for (i in 1:nrow(mean_VSR)){
 }
 
 NrS_valid <- length(valid_sbjList)
+
+NrS_valid
+
 gpData_raw <-gpData
 gpData<- tibble()
 gpData <- gpData_raw[gpData_raw$sbjId %in% valid_sbjList, ] 
@@ -136,7 +152,9 @@ z = ezANOVA(data = gpCondM1
             , within_full = .(phase, swProb, trialType_sw)
             , type = 3
             , detailed = TRUE)
-print(z)
+z_table <- apa.ezANOVA.table(z, filename="RT_2phasex2swProbx2trialTypeSw.doc")
+print(z_table)
+
 ```
 #### Figure 2: Acc
 ```{r Figure2}
@@ -157,11 +175,13 @@ z = ezANOVA(data = gpCondM1
             , within_full = .(phase, swProb, trialType_sw)
             , type = 3
             , detailed = TRUE)
-print(z)
+
+z_table <- apa.ezANOVA.table(z, filename="ACC_2phasex2swProbx2trialTypeSw.doc")
+print(z_table)
 ```
 
 ### 2. Choice trials
-#### Analyze with RT/ACC with 2 swProb x trialType_sw 
+#### Analyze with RT/ACC with 2 swProb x 2 trialType_sw 
 ```{r}
 gpCondM2 <- tibble()
 gpCondM2 <- gpData %>% 
@@ -202,7 +222,9 @@ z = ezANOVA(data = gpCondM2
             , within_full = .(swProb, trialType_sw)
             , type = 3
             , detailed = TRUE)
-print(z)
+
+z_table <- apa.ezANOVA.table(z, filename="Choice_RT_2swProbx2trialTypeSw.doc")
+print(z_table)
 ```
 #### Figure 4: ACC
 ```{r Figure4}
@@ -211,7 +233,7 @@ ISSP_choice %>%
   geom_col(position = dodge) + 
   geom_errorbar(aes(ymax = gpmeanACC + (1*SE_acc), ymin =gpmeanACC -(1*SE_acc)), position = dodge, width=.25) + 
   ylab("mean ACC") + 
-  coord_cartesian(ylim = c(80,100)) +
+  coord_cartesian(ylim = c(85,100)) +
   scale_fill_grey()
 
 #### 2-way ANOVA: choice trials: ACC ~ 2 swProb x 2 trialType_sw
@@ -223,7 +245,9 @@ z = ezANOVA(data = gpCondM2
             , within_full = .(swProb, trialType_sw)
             , type = 3
             , detailed = TRUE)
-print(z)
+z_table <- apa.ezANOVA.table(z, filename="Choice_ACC_2swProbx2trialTypeSw.doc")
+print(z_table)
+
 ```
 
 ### 3. Choice trials
@@ -269,7 +293,9 @@ z = ezANOVA(data = gpCondM3
             , within_full = .(swProb)
             , type = 3
             , detailed = TRUE)
-print(z)
+z_table <- apa.ezANOVA.table(z, filename="VSR_2swProb.doc")
+print(z_table)
+
 ```
 #### Figure 6: taskBias
 ```{r Figure6}
@@ -290,13 +316,15 @@ z = ezANOVA(data = gpCondM3
             , within_full = .(swProb)
             , type = 3
             , detailed = TRUE)
-print(z)
+z_table <- apa.ezANOVA.table(z, filename="tskRatio_2swProb.doc")
+print(z_table)
+
 ```
 
 
 
 ### 4. Choice trials
-#### Analyze VSR  with 2 runId_half x 2 swProb 
+#### Analyze VSR  with 3 runId_half x 2 swProb 
 ```{r}
 
 gpCondM4 <- tibble()
@@ -316,10 +344,10 @@ gp_choice2 <- gpCondM4 %>%
   summarise(gpmeanVSR = mean(meanVSR)*100, SE_vsr = LnMSE_VSR*100) 
 
 ```
-#### Figure 7: VSR: 2 runHalf
+#### Figure 7: VSR: 3 runHalf x 2 swProb
 ```{r Figure7}
 gp_choice2 %>%
-  ggplot(aes(x=swProb, y = gpmeanVSR, fill = runId_half)) + 
+  ggplot(aes(x=runId_half, y = gpmeanVSR, fill = swProb)) + 
   geom_col(position = dodge) + 
   geom_errorbar(aes(ymax = gpmeanVSR + (1*SE_vsr), ymin =gpmeanVSR -(1*SE_vsr)), position = dodge, width=.25) +
   ylab("mean VSR") + 
@@ -335,18 +363,67 @@ z = ezANOVA(data = gpCondM4
             , type = 3
             , detailed = TRUE)
 print(z)
+z_table <- apa.ezANOVA.table(z, filename="VSR_3runHalfx2SwProb.doc")
+
 ```
+### 5. Choice trials
+#### Analyze VSR  with 6 run x 2 swProb 
 ```{r}
+
+gpCondM5 <- tibble()
+gpCondM5 <- gpData %>% 
+  filter(trialType=="choice") %>%
+  filter(trialType_sw=="switch" | trialType_sw=="repeat") %>%
+  group_by(sbjId, runId, swProb) %>%
+  summarise(meanVSR = mean(trialType_int, na.rm = TRUE)) %>% ungroup() 
+
+df <- gpCondM5
+colnames(df)[colnames(df)=="meanVSR"] <- "M"
+LnMSE_VSR <- getWSSE(df)
+
+# summary for plotting later on
+gp_choice3 <- gpCondM5 %>%
+  group_by(runId, swProb) %>% 
+  summarise(gpmeanVSR = mean(meanVSR)*100, SE_vsr = LnMSE_VSR*100) 
+
+```
+#### Figure 8: VSR: 6 run x 2 swProb
+```{r Figure8}
+gp_choice3 %>%
+  ggplot(aes(x=runId, y = gpmeanVSR, fill = swProb)) + 
+  geom_col(position = dodge) + 
+  geom_errorbar(aes(ymax = gpmeanVSR + (1*SE_vsr), ymin =gpmeanVSR -(1*SE_vsr)), position = dodge, width=.25) +
+  ylab("mean VSR") + 
+  coord_cartesian(ylim = c(30,40)) +
+  scale_fill_grey()
+
+#### 1-way ANOVA: choice trials: VSR ~ 2 swProb 
+z = ezANOVA(data = gpCondM5
+            , dv = meanVSR
+            , wid = sbjId
+            , within = .(runId, swProb)
+            , within_full = .(runId, swProb)
+            , type = 3
+            , detailed = TRUE)
+print(z)
+z_table <- apa.ezANOVA.table(z, filename="VSR_6runx2SwProb.doc")
+
+```
+
+#### Figure 9: BFANOVA: 6 run x 2 swProb
+```{r Figure9}
+
 tt <- gpData %>% 
   filter(trialType=="choice") %>%
   filter(trialType_sw=="switch" | trialType_sw=="repeat")
 
 data.anova.mean <- aggregate(tt$trialType_int,
-                             by = list(sub = tt$sbjId,
-                                       u = tt$runId_half,
-                                       p = tt$swProb),
+                             by = list(sub    = tt$sbjId,
+                                       run    = tt$runId,
+                                       swProb = tt$swProb),
                              FUN = 'mean', na.rm = TRUE)
-bf <- anovaBF(x ~ u * p + sub, data = data.anova.mean, 
+
+bf <- anovaBF(x ~ run * swProb + sub, data = data.anova.mean, 
              whichRandom="sub")
 plot(bf)
 
@@ -355,7 +432,8 @@ plot(bf)
 
 
 ```
-```{r}
+#### Figure 10: BFANOVA:2 swProb (last 4 runs only)
+```{r Figure10}
 tt <- gpData %>% 
   filter(trialType=="choice") %>%
   filter(runId>=5) %>%
@@ -363,24 +441,21 @@ tt <- gpData %>%
 
 
 data.anova.mean <- aggregate(tt$trialType_int,
-                             by = list(sub = tt$sbjId,
-                                       p = tt$swProb),
+                             by = list(sub    = tt$sbjId,
+                                       swProb = tt$swProb),
                              FUN = 'mean', na.rm = TRUE)
 
-z = ezANOVA(data = data.anova.mean
-            , dv = x
+z = ezANOVA(data = data.anova.mean 
+            , dv =x
             , wid = sub
-            , within = .(p)
-            , within_full = .(p)
+            , within = .(swProb)
+            , within_full = .(swProb)
             , type = 3
             , detailed = TRUE)
 print(z)
 
-anova <- aov(x ~  p + Error(sub/(p)),
-                    data = data.anova.mean)
 
-
-bf <- anovaBF(x ~ p + sub, data = data.anova.mean, 
+bf <- anovaBF(x ~ swProb + sub, data = data.anova.mean, 
              whichRandom="sub")
 plot(bf)
 
