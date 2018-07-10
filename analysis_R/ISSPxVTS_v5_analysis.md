@@ -1,7 +1,7 @@
 ISSPxVTS\_v5 analysis
 ================
 Yu-Chin Chiu
-June 11, 2018
+July 10, 2018
 
 ``` r
 knitr::opts_chunk$set(fig.width=6, fig.height=4, fig.path='figure/', echo = FALSE, warning = FALSE, message = FALSE)
@@ -16,9 +16,9 @@ This file came from python scripts - cleaning and preprocessing
 
 Set up some good format, here I am using apatheme with white background, with black axis lines, no grids.
 
-    ## [1] 52
+    ## [1] 70
 
-    ## [1] 38
+    ## [1] 57
 
 RESULTS:
 --------
@@ -26,6 +26,19 @@ RESULTS:
 ### 1. Cued trials
 
 #### Analyze with 2 phase x 2 swProb x trialType\_sw
+
+    ## # A tibble: 8 x 7
+    ## # Groups:   phase, swProb [?]
+    ##      phase swProb trialType_sw gpmeanRT    SE_rt gpmeanACC   SE_acc
+    ##      <ord>  <ord>        <ord>    <dbl>    <dbl>     <dbl>    <dbl>
+    ## 1 training  sw25%       repeat 794.2884 5.502988  91.08084 0.785299
+    ## 2 training  sw25%       switch 883.6271 5.502988  87.03252 0.785299
+    ## 3 training  sw75%       repeat 801.9320 5.502988  91.87889 0.785299
+    ## 4 training  sw75%       switch 868.9190 5.502988  88.91546 0.785299
+    ## 5   hybrid  sw25%       repeat 781.7211 5.502988  89.56093 0.785299
+    ## 6   hybrid  sw25%       switch 852.6542 5.502988  85.10720 0.785299
+    ## 7   hybrid  sw75%       repeat 791.4430 5.502988  88.72326 0.785299
+    ## 8   hybrid  sw75%       switch 844.8044 5.502988  85.78130 0.785299
 
 #### Figure 1: RT
 
@@ -37,14 +50,14 @@ RESULTS:
     ##  
     ## 
     ##                      Predictor df_num df_den       SS_num     SS_den       F    p ges
-    ##                    (Intercept)      1     37 198066957.89 3089956.05 2371.71 .000 .98
-    ##                          phase      1     37     14325.23  130061.41    4.08 .051 .00
-    ##                         swProb      1     37       475.72   31520.17    0.56 .460 .00
-    ##                   trialType_sw      1     37    299722.56  158274.59   70.07 .000 .08
-    ##                 phase x swProb      1     37       166.06   27673.13    0.22 .640 .00
-    ##           phase x trialType_sw      1     37      3632.83   32604.55    4.12 .050 .00
-    ##          swProb x trialType_sw      1     37      7225.17   29185.55    9.16 .004 .00
-    ##  phase x swProb x trialType_sw      1     37      2736.56   25114.23    4.03 .052 .00
+    ##                    (Intercept)      1     56 312191238.66 4953907.76 3529.07 .000 .98
+    ##                          phase      1     56     43508.53  216665.67   11.25 .001 .01
+    ##                         swProb      1     56       192.09   58690.78    0.18 .670 .00
+    ##                   trialType_sw      1     56    561077.42  239183.73  131.36 .000 .09
+    ##                 phase x swProb      1     56       569.04   39700.61    0.80 .374 .00
+    ##           phase x trialType_sw      1     56      7310.24   72918.58    5.61 .021 .00
+    ##          swProb x trialType_sw      1     56     11356.37   31543.90   20.16 .000 .00
+    ##  phase x swProb x trialType_sw      1     56       162.80   34147.09    0.27 .607 .00
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -60,15 +73,15 @@ RESULTS:
     ## ANOVA results
     ##  
     ## 
-    ##                      Predictor df_num df_den SS_num SS_den        F    p  ges
-    ##                    (Intercept)      1     37 255.64   0.59 15931.94 .000 1.00
-    ##                          phase      1     37   0.00   0.23     0.01 .918  .00
-    ##                         swProb      1     37   0.00   0.06     0.08 .775  .00
-    ##                   trialType_sw      1     37   0.02   0.05    19.39 .000  .02
-    ##                 phase x swProb      1     37   0.00   0.04     1.24 .273  .00
-    ##           phase x trialType_sw      1     37   0.00   0.04     1.08 .305  .00
-    ##          swProb x trialType_sw      1     37   0.00   0.04     0.43 .517  .00
-    ##  phase x swProb x trialType_sw      1     37   0.00   0.03     0.30 .589  .00
+    ##                      Predictor df_num df_den SS_num SS_den       F    p ges
+    ##                    (Intercept)      1     56 357.23   3.32 6022.09 .000 .99
+    ##                          phase      1     56   0.07   0.79    4.77 .033 .01
+    ##                         swProb      1     56   0.00   0.13    1.96 .167 .00
+    ##                   trialType_sw      1     56   0.15   0.19   44.51 .000 .03
+    ##                 phase x swProb      1     56   0.01   0.14    2.37 .129 .00
+    ##           phase x trialType_sw      1     56   0.00   0.09    0.06 .803 .00
+    ##          swProb x trialType_sw      1     56   0.00   0.05    5.04 .029 .00
+    ##  phase x swProb x trialType_sw      1     56   0.00   0.07    0.11 .746 .00
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -88,11 +101,11 @@ RESULTS:
     ## ANOVA results
     ##  
     ## 
-    ##              Predictor df_num df_den      SS_num     SS_den       F    p ges
-    ##            (Intercept)      1     37 85058092.02 1239734.84 2538.57 .000 .98
-    ##                 swProb      1     37      688.91   42320.03    0.60 .443 .00
-    ##           trialType_sw      1     37    68452.95   59259.24   42.74 .000 .05
-    ##  swProb x trialType_sw      1     37      416.06   25380.75    0.61 .441 .00
+    ##              Predictor df_num df_den       SS_num     SS_den       F    p ges
+    ##            (Intercept)      1     56 133557099.13 1944484.25 3846.37 .000 .98
+    ##                 swProb      1     56       194.63   89662.58    0.12 .729 .00
+    ##           trialType_sw      1     56    111872.28  111050.81   56.41 .000 .05
+    ##  swProb x trialType_sw      1     56      2701.20   45358.85    3.33 .073 .00
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -109,10 +122,10 @@ RESULTS:
     ##  
     ## 
     ##              Predictor df_num df_den SS_num SS_den        F    p  ges
-    ##            (Intercept)      1     37 141.84   0.10 53433.84 .000 1.00
-    ##                 swProb      1     37   0.00   0.02     0.16 .695  .00
-    ##           trialType_sw      1     37   0.00   0.04     0.35 .555  .00
-    ##  swProb x trialType_sw      1     37   0.00   0.03     0.41 .524  .00
+    ##            (Intercept)      1     56 206.12   0.64 17975.37 .000 1.00
+    ##                 swProb      1     56   0.00   0.05     0.03 .870  .00
+    ##           trialType_sw      1     56   0.00   0.09     0.42 .519  .00
+    ##  swProb x trialType_sw      1     56   0.00   0.05     0.03 .859  .00
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -123,6 +136,12 @@ RESULTS:
 
 #### Analyze VSR and tskRatio with 2 swProb
 
+    ## # A tibble: 2 x 5
+    ##   swProb gpmeanVSR   SE_vsr gpmeanTskRatio  SE_tskR
+    ##    <ord>     <dbl>    <dbl>          <dbl>    <dbl>
+    ## 1  sw25%  32.64858 0.532147       51.49491 1.172383
+    ## 2  sw75%  34.29089 0.532147       50.99056 1.172383
+
 #### Figure 5: VSR
 
 ![](figure/Figure5-1.png)
@@ -132,9 +151,9 @@ RESULTS:
     ## ANOVA results
     ##  
     ## 
-    ##    Predictor df_num df_den SS_num SS_den      F    p ges
-    ##  (Intercept)      1     37   9.25   0.35 974.24 .000 .96
-    ##       swProb      1     37   0.00   0.06   2.55 .119 .01
+    ##    Predictor df_num df_den SS_num SS_den       F    p ges
+    ##  (Intercept)      1     56  12.77   0.66 1077.00 .000 .94
+    ##       swProb      1     56   0.01   0.09    4.85 .032 .01
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -150,9 +169,9 @@ RESULTS:
     ## ANOVA results
     ##  
     ## 
-    ##    Predictor df_num df_den SS_num SS_den     F    p ges
-    ##  (Intercept)      1     37  18.04   7.10 93.96 .000 .71
-    ##       swProb      1     37   0.00   0.28  0.11 .738 .00
+    ##    Predictor df_num df_den SS_num SS_den      F    p ges
+    ##  (Intercept)      1     56  29.93   8.08 207.42 .000 .78
+    ##       swProb      1     56   0.00   0.43   0.09 .760 .00
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -168,54 +187,69 @@ RESULTS:
 ![](figure/Figure7-1.png)
 
     ## $ANOVA
-    ##              Effect DFn DFd         SSn       SSd          F            p p<.05         ges
-    ## 1       (Intercept)   1  37 27.74037965 1.0540357 973.775437 3.533469e-28     * 0.926183242
-    ## 2        runId_half   2  74  0.02405038 0.4370780   2.035938 1.378074e-01       0.010761001
-    ## 3            swProb   1  37  0.01177434 0.1696490   2.567953 1.175529e-01       0.005297360
-    ## 4 runId_half:swProb   2  74  0.01651471 0.5501442   1.110699 3.347558e-01       0.007414274
+    ##              Effect DFn DFd         SSn       SSd            F            p p<.05         ges
+    ## 1       (Intercept)   1  56 38.30734823 1.9909687 1077.4712249 2.899294e-38     * 0.907762946
+    ## 2        runId_half   2 112  0.03651604 0.7951455    2.5717286 8.090944e-02       0.009294228
+    ## 3            swProb   1  56  0.02419046 0.2734591    4.9538138 3.007617e-02     * 0.006176441
+    ## 4 runId_half:swProb   2 112  0.01367043 0.8328052    0.9192357 4.018113e-01       0.003499811
     ## 
     ## $`Mauchly's Test for Sphericity`
     ##              Effect         W         p p<.05
-    ## 2        runId_half 0.9841071 0.7494838      
-    ## 4 runId_half:swProb 0.9514434 0.4082190      
+    ## 2        runId_half 0.9698339 0.4307031      
+    ## 4 runId_half:swProb 0.9733342 0.4755595      
     ## 
     ## $`Sphericity Corrections`
-    ##              Effect       GGe     p[GG] p[GG]<.05      HFe     p[HF] p[HF]<.05
-    ## 2        runId_half 0.9843557 0.1386345           1.039229 0.1378074          
-    ## 4 runId_half:swProb 0.9536920 0.3328255           1.004208 0.3347558
+    ##              Effect       GGe      p[GG] p[GG]<.05      HFe      p[HF] p[HF]<.05
+    ## 2        runId_half 0.9707173 0.08266852           1.005038 0.08090944          
+    ## 4 runId_half:swProb 0.9740268 0.39969623           1.008651 0.40181132
 
 ### 5. Choice trials
 
-#### Analyze VSR with 6 run x 2 swProb
+#### Analyze VSR with \[2bk,4bk\] 2 halfs(uneven) x 2 swProb
 
-#### Figure 8: VSR: 6 run x 2 swProb
+#### Figure 8: VSR: 2 unevenHalfs x 2 swProb
 
 ![](figure/Figure8-1.png)
 
     ## $ANOVA
-    ##         Effect DFn DFd         SSn       SSd           F            p p<.05         ges
-    ## 1  (Intercept)   1  37 55.80551633 2.1355593 966.8680565 4.011888e-28     * 0.874200563
-    ## 2        runId   5 185  0.12314356 2.7285407   1.6698713 1.438947e-01       0.015102814
-    ## 3       swProb   1  37  0.01249227 0.3619675   1.2769493 2.657396e-01       0.001553179
-    ## 4 runId:swProb   5 185  0.05835643 2.8044724   0.7699087 5.725597e-01       0.007214387
+    ##          Effect DFn DFd          SSn       SSd            F            p p<.05          ges
+    ## 1   (Intercept)   1  56 2.552286e+01 1.4209355 1.005872e+03 1.805073e-37     * 9.183716e-01
+    ## 2        runId2   1  56 7.146858e-06 0.2727200 1.467527e-03 9.695781e-01       3.150370e-06
+    ## 3        swProb   1  56 8.668168e-03 0.2151129 2.256570e+00 1.386668e-01       3.806439e-03
+    ## 4 runId2:swProb   1  56 9.477841e-03 0.3598016 1.475144e+00 2.296326e-01       4.160510e-03
+
+### 6. Choice trials
+
+#### Correlation between ISSP\_train and overall VSR
+
+![](figure/Figure9-1.png)
+
     ## 
-    ## $`Mauchly's Test for Sphericity`
-    ##         Effect         W         p p<.05
-    ## 2        runId 0.6157813 0.2562882      
-    ## 4 runId:swProb 0.6595393 0.4065611      
+    ##  Pearson's product-moment correlation
     ## 
-    ## $`Sphericity Corrections`
-    ##         Effect       GGe     p[GG] p[GG]<.05      HFe     p[HF] p[HF]<.05
-    ## 2        runId 0.8424882 0.1564419           0.964224 0.1466517          
-    ## 4 runId:swProb 0.8487035 0.5533035           0.972349 0.5692493
+    ## data:  summary$ISSP_train and summary$meanVSR
+    ## t = 2.188, df = 55, p-value = 0.03294
+    ## alternative hypothesis: true correlation is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.02418296 0.50621115
+    ## sample estimates:
+    ##       cor 
+    ## 0.2829675
 
-#### Figure 9: BFANOVA: 6 run x 2 swProb
+### 7. Choice trials
 
-![](figure/Figure9-1.png) \#\#\#\# Figure 10: BFANOVA:2 swProb (last 4 runs only)
-
-    ## $ANOVA
-    ##        Effect DFn DFd        SSn        SSd           F            p p<.05        ges
-    ## 1 (Intercept)   1  37 9.28619892 0.32848461 1045.983120 9.846712e-29     * 0.95782492
-    ## 2      swProb   1  37 0.01329686 0.08040655    6.118703 1.808992e-02     * 0.03149511
+#### Correlation between ISSP\_choice and VSReffect
 
 ![](figure/Figure10-1.png)
+
+    ## 
+    ##  Pearson's product-moment correlation
+    ## 
+    ## data:  summary$ISSP_choice and summary$VSReffect
+    ## t = 2.7903, df = 55, p-value = 0.007224
+    ## alternative hypothesis: true correlation is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.1008262 0.5612147
+    ## sample estimates:
+    ##       cor 
+    ## 0.3521424
