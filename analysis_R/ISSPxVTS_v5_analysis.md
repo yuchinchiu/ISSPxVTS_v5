@@ -1,7 +1,7 @@
 ISSPxVTS\_v5 analysis
 ================
 Yu-Chin Chiu
-July 10, 2018
+July 11, 2018
 
 ``` r
 knitr::opts_chunk$set(fig.width=6, fig.height=4, fig.path='figure/', echo = FALSE, warning = FALSE, message = FALSE)
@@ -25,24 +25,7 @@ RESULTS:
 
 ### 1. Cued trials
 
-#### Analyze with 2 phase x 2 swProb x trialType\_sw
-
-    ## # A tibble: 8 x 7
-    ## # Groups:   phase, swProb [?]
-    ##      phase swProb trialType_sw gpmeanRT    SE_rt gpmeanACC   SE_acc
-    ##      <ord>  <ord>        <ord>    <dbl>    <dbl>     <dbl>    <dbl>
-    ## 1 training  sw25%       repeat 794.2884 5.502988  91.08084 0.785299
-    ## 2 training  sw25%       switch 883.6271 5.502988  87.03252 0.785299
-    ## 3 training  sw75%       repeat 801.9320 5.502988  91.87889 0.785299
-    ## 4 training  sw75%       switch 868.9190 5.502988  88.91546 0.785299
-    ## 5   hybrid  sw25%       repeat 781.7211 5.502988  89.56093 0.785299
-    ## 6   hybrid  sw25%       switch 852.6542 5.502988  85.10720 0.785299
-    ## 7   hybrid  sw75%       repeat 791.4430 5.502988  88.72326 0.785299
-    ## 8   hybrid  sw75%       switch 844.8044 5.502988  85.78130 0.785299
-
-#### Figure 1: RT
-
-![](figure/Figure1-1.png)
+#### Analyze RT & ACC with 2 phase x 2 swProb x trialType\_sw
 
     ## 
     ## 
@@ -64,10 +47,6 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
-#### Figure 2: Acc
-
-![](figure/Figure2-1.png)
-
     ## 
     ## 
     ## ANOVA results
@@ -88,13 +67,26 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
+    ## # A tibble: 8 x 7
+    ## # Groups:   phase, swProb [?]
+    ##      phase swProb trialType_sw gpmeanRT    SE_rt gpmeanACC   SE_acc
+    ##      <ord>  <ord>        <ord>    <dbl>    <dbl>     <dbl>    <dbl>
+    ## 1 training  sw25%       repeat 794.2884 5.502988  91.08084 0.785299
+    ## 2 training  sw25%       switch 883.6271 5.502988  87.03252 0.785299
+    ## 3 training  sw75%       repeat 801.9320 5.502988  91.87889 0.785299
+    ## 4 training  sw75%       switch 868.9190 5.502988  88.91546 0.785299
+    ## 5   hybrid  sw25%       repeat 781.7211 5.502988  89.56093 0.785299
+    ## 6   hybrid  sw25%       switch 852.6542 5.502988  85.10720 0.785299
+    ## 7   hybrid  sw75%       repeat 791.4430 5.502988  88.72326 0.785299
+    ## 8   hybrid  sw75%       switch 844.8044 5.502988  85.78130 0.785299
+
+#### Figure 1a: Cued - RT
+
+![](figure/Figure1a-1.png) \#\#\#\# Figure 1b: Cued - ACC ![](figure/Figure1b-1.png)
+
 ### 2. Choice trials
 
-#### Analyze with RT/ACC with 2 swProb x 2 trialType\_sw
-
-#### Figure 3: RT
-
-![](figure/Figure3-1.png)
+#### Analyze RT & ACC with 2 swProb x 2 trialType\_sw
 
     ## 
     ## 
@@ -112,10 +104,6 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
-#### Figure 4: ACC
-
-![](figure/Figure4-1.png)
-
     ## 
     ## 
     ## ANOVA results
@@ -132,19 +120,26 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
+    ## # A tibble: 4 x 6
+    ## # Groups:   swProb [?]
+    ##   swProb trialType_sw gpmeanRT    SE_rt gpmeanACC    SE_acc
+    ##    <ord>        <ord>    <dbl>    <dbl>     <dbl>     <dbl>
+    ## 1  sw25%       repeat 740.6914 4.997713  95.32307 0.4513392
+    ## 2  sw25%       switch 791.8775 4.997713  94.90805 0.4513392
+    ## 3  sw75%       repeat 745.7276 4.997713  95.18544 0.4513392
+    ## 4  sw75%       switch 783.1456 4.997713  94.91049 0.4513392
+
+#### Figure 2a: Choice - RT
+
+![](figure/Figure2a-1.png)
+
+#### Figure 2b: Choice - ACC
+
+![](figure/Figure2b-1.png)
+
 ### 3. Choice trials
 
 #### Analyze VSR and tskRatio with 2 swProb
-
-    ## # A tibble: 2 x 5
-    ##   swProb gpmeanVSR   SE_vsr gpmeanTskRatio  SE_tskR
-    ##    <ord>     <dbl>    <dbl>          <dbl>    <dbl>
-    ## 1  sw25%  32.64858 0.532147       51.49491 1.172383
-    ## 2  sw75%  34.29089 0.532147       50.99056 1.172383
-
-#### Figure 5: VSR
-
-![](figure/Figure5-1.png)
 
     ## 
     ## 
@@ -160,10 +155,6 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
-#### Figure 6: taskBias
-
-![](figure/Figure6-1.png)
-
     ## 
     ## 
     ## ANOVA results
@@ -178,38 +169,86 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
+    ## # A tibble: 2 x 5
+    ##   swProb gpmeanVSR   SE_vsr gpmeanTskRatio  SE_tskR
+    ##    <ord>     <dbl>    <dbl>          <dbl>    <dbl>
+    ## 1  sw25%  32.64858 0.532147       51.49491 1.172383
+    ## 2  sw75%  34.29089 0.532147       50.99056 1.172383
+
+#### Figure 3a: VSR ~ swProb
+
+![](figure/Figure3a-1.png)
+
+#### Figure 3b: taskBias ~swProb
+
+![](figure/Figure3b-1.png)
+
+Exploratory analysis
+====================
+
 ### 4. Choice trials
 
-#### Analyze VSR with 3 runId\_half x 2 swProb
-
-#### Figure 7: VSR: 3 runHalf x 2 swProb
-
-![](figure/Figure7-1.png)
+#### Analyze VSR with 3 blocks ("run\_3bk") x 2 swProb
 
     ## $ANOVA
-    ##              Effect DFn DFd         SSn       SSd            F            p p<.05         ges
-    ## 1       (Intercept)   1  56 38.30734823 1.9909687 1077.4712249 2.899294e-38     * 0.907762946
-    ## 2        runId_half   2 112  0.03651604 0.7951455    2.5717286 8.090944e-02       0.009294228
-    ## 3            swProb   1  56  0.02419046 0.2734591    4.9538138 3.007617e-02     * 0.006176441
-    ## 4 runId_half:swProb   2 112  0.01367043 0.8328052    0.9192357 4.018113e-01       0.003499811
+    ##           Effect DFn DFd         SSn       SSd            F            p p<.05         ges
+    ## 1    (Intercept)   1  56 38.30734823 1.9909687 1077.4712249 2.899294e-38     * 0.907762946
+    ## 2        run_3bk   2 112  0.03651604 0.7951455    2.5717286 8.090944e-02       0.009294228
+    ## 3         swProb   1  56  0.02419046 0.2734591    4.9538138 3.007617e-02     * 0.006176441
+    ## 4 run_3bk:swProb   2 112  0.01367043 0.8328052    0.9192357 4.018113e-01       0.003499811
     ## 
     ## $`Mauchly's Test for Sphericity`
-    ##              Effect         W         p p<.05
-    ## 2        runId_half 0.9698339 0.4307031      
-    ## 4 runId_half:swProb 0.9733342 0.4755595      
+    ##           Effect         W         p p<.05
+    ## 2        run_3bk 0.9698339 0.4307031      
+    ## 4 run_3bk:swProb 0.9733342 0.4755595      
     ## 
     ## $`Sphericity Corrections`
-    ##              Effect       GGe      p[GG] p[GG]<.05      HFe      p[HF] p[HF]<.05
-    ## 2        runId_half 0.9707173 0.08266852           1.005038 0.08090944          
-    ## 4 runId_half:swProb 0.9740268 0.39969623           1.008651 0.40181132
+    ##           Effect       GGe      p[GG] p[GG]<.05      HFe      p[HF] p[HF]<.05
+    ## 2        run_3bk 0.9707173 0.08266852           1.005038 0.08090944          
+    ## 4 run_3bk:swProb 0.9740268 0.39969623           1.008651 0.40181132
+
+    ## # A tibble: 6 x 4
+    ## # Groups:   run_3bk [?]
+    ##   run_3bk swProb gpmeanVSR   SE_vsr
+    ##     <ord>  <ord>     <dbl>    <dbl>
+    ## 1      B1  sw25%  33.46824 1.099431
+    ## 2      B1  sw75%  33.41193 1.099431
+    ## 3      B2  sw25%  31.12242 1.099431
+    ## 4      B2  sw75%  33.31047 1.099431
+    ## 5      B3  sw25%  33.28985 1.099431
+    ## 6      B3  sw75%  36.20427 1.099431
+
+#### Figure 4: VSR: 3 blocks x 2 swProb
+
+![](figure/Figure4-1.png)
 
 ### 5. Choice trials
 
-#### Analyze VSR with \[2bk,4bk\] 2 halfs(uneven) x 2 swProb
+#### Analyze VSR with 2 blocks ("run\_2bk") x 2 swProb
 
-#### Figure 8: VSR: 2 unevenHalfs x 2 swProb
+    ## $ANOVA
+    ##           Effect DFn DFd          SSn       SSd            F            p p<.05          ges
+    ## 1    (Intercept)   1  56 2.561572e+01 1.3377939 1.072273e+03 3.297917e-38     * 0.9195630790
+    ## 2        run_2bk   1  56 5.775048e-04 0.4150005 7.792826e-02 7.811532e-01       0.0002576696
+    ## 3         swProb   1  56 1.619042e-02 0.1728938 5.244050e+00 2.581125e-02     * 0.0071738289
+    ## 4 run_2bk:swProb   1  56 6.551166e-03 0.3149949 1.164671e+00 2.851254e-01       0.0029152127
 
-![](figure/Figure8-1.png)
+    ## # A tibble: 4 x 4
+    ## # Groups:   run_2bk [?]
+    ##   run_2bk swProb gpmeanVSR    SE_vsr
+    ##     <ord>  <ord>     <dbl>     <dbl>
+    ## 1  first3  sw25%  33.05280 0.9749929
+    ## 2  first3  sw75%  33.66609 0.9749929
+    ## 3   last3  sw25%  32.29904 0.9749929
+    ## 4   last3  sw75%  35.05646 0.9749929
+
+#### Figure 5: VSR: 2 blocks x 2 swProb
+
+![](figure/Figure5-1.png)
+
+### 6. Choice trials
+
+#### Analyze VSR with 2 blocks ("runId2" - first 2 & last 4) x 2 swProb
 
     ## $ANOVA
     ##          Effect DFn DFd          SSn       SSd            F            p p<.05          ges
@@ -218,11 +257,26 @@ RESULTS:
     ## 3        swProb   1  56 8.668168e-03 0.2151129 2.256570e+00 1.386668e-01       3.806439e-03
     ## 4 runId2:swProb   1  56 9.477841e-03 0.3598016 1.475144e+00 2.296326e-01       4.160510e-03
 
-### 6. Choice trials
+    ## # A tibble: 4 x 4
+    ## # Groups:   runId2 [?]
+    ##   runId2 swProb gpmeanVSR    SE_vsr
+    ##    <ord>  <ord>     <dbl>     <dbl>
+    ## 1 first2  sw25%  33.46824 0.9406437
+    ## 2 first2  sw75%  33.41193 0.9406437
+    ## 3  last4  sw25%  32.21416 0.9406437
+    ## 4  last4  sw75%  34.73683 0.9406437
+
+#### Figure 6: VSR: 2 blocks ("runId2" - first 2 & last 4) x 2 swProb
+
+![](figure/Figure6-1.png)
+
+### 7. Choice trials
 
 #### Correlation between ISSP\_train and overall VSR
 
-![](figure/Figure9-1.png)
+#### Figure 7: correlation between ISSP\_train & mean VSR
+
+![](figure/Figure7-1.png)
 
     ## 
     ##  Pearson's product-moment correlation
@@ -236,11 +290,13 @@ RESULTS:
     ##       cor 
     ## 0.2829675
 
-### 7. Choice trials
+### 8. Choice trials
 
 #### Correlation between ISSP\_choice and VSReffect
 
-![](figure/Figure10-1.png)
+#### Figure 8: correlation between ISSP\_hybrid\_choice & VSR effect
+
+![](figure/Figure8-1.png)
 
     ## 
     ##  Pearson's product-moment correlation
