@@ -63,7 +63,7 @@ gpData[which(gpData$phase=="hybrid" & gpData$runId>=5), "runId2"]="last4"
 # mark trials with ACC=0, RT=NA, only analyze CORRECT TRIALS' RT
 gpData[which(gpData$sbjACC==0), "sbjRT"] =NA
 gpData[which(gpData$sbjRT<250), "sbjRT"] =NA
-gpData[which(gpData$sbjRT>1500), "sbjRT"]=NA
+gpData[which(gpData$sbjRT>3000), "sbjRT"]=NA
 
 # Turn a bunch of codings into categorical factors
 catVblList <- c("phase","sbjId","runId", "swProb", "task", "trialType_sw", "run_3bk","run_2bk","runId2")
@@ -184,6 +184,8 @@ gpCondM1 %>%
   coord_cartesian(ylim = c(600,900)) +
   scale_fill_grey()
 ```
+
+
 #### Figure 1b: Cued - ACC
 ```{r Figure1b}
 gpCondM1 %>%
@@ -287,7 +289,7 @@ CondM3 <- gpData %>%
   filter(trialType=="choice") %>%
   filter(trialType_sw=="switch" | trialType_sw=="repeat") %>%
   group_by(sbjId, swProb) %>%
-  summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanTskRatio = mean(task_int, na.rm = TRUE)) %>% ungroup() 
+  summarise(meanVSR = mean(trialType_int, na.rm = TRUE), meanTskRatio = mean(task_int, na.rm = TRUE), cnt=n()) %>% ungroup() 
 
 
 # 1-way ANOVA: choice trials: VSR ~ 2 swProb 
@@ -326,7 +328,7 @@ LnMSE_tskR <- getWSSE(df)
 # create group level condition means
 gpCondM3 <- CondM3 %>%
   group_by(swProb) %>% 
-  summarise(gpmeanVSR = mean(meanVSR)*100, SE_vsr = LnMSE_VSR*100 , gpmeanTskRatio = mean(meanTskRatio)*100, SE_tskR = LnMSE_tskR*100) 
+  summarise(gpmeanVSR = mean(meanVSR)*100, SE_vsr = LnMSE_VSR*100 , gpmeanTskRatio = mean(meanTskRatio)*100, SE_tskR = LnMSE_tskR*100, trialCNT = mean(cnt)) 
 print(gpCondM3)
 
 

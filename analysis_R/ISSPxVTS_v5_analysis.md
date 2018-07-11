@@ -33,14 +33,14 @@ RESULTS:
     ##  
     ## 
     ##                      Predictor df_num df_den       SS_num     SS_den       F    p ges
-    ##                    (Intercept)      1     56 312191238.66 4953907.76 3529.07 .000 .98
-    ##                          phase      1     56     43508.53  216665.67   11.25 .001 .01
-    ##                         swProb      1     56       192.09   58690.78    0.18 .670 .00
-    ##                   trialType_sw      1     56    561077.42  239183.73  131.36 .000 .09
-    ##                 phase x swProb      1     56       569.04   39700.61    0.80 .374 .00
-    ##           phase x trialType_sw      1     56      7310.24   72918.58    5.61 .021 .00
-    ##          swProb x trialType_sw      1     56     11356.37   31543.90   20.16 .000 .00
-    ##  phase x swProb x trialType_sw      1     56       162.80   34147.09    0.27 .607 .00
+    ##                    (Intercept)      1     56 312267582.97 4966692.42 3520.85 .000 .98
+    ##                          phase      1     56     43324.67  216358.01   11.21 .001 .01
+    ##                         swProb      1     56       186.20   58398.82    0.18 .674 .00
+    ##                   trialType_sw      1     56    559802.51  239491.23  130.90 .000 .09
+    ##                 phase x swProb      1     56       499.52   39204.96    0.71 .402 .00
+    ##           phase x trialType_sw      1     56      7162.64   72249.01    5.55 .022 .00
+    ##          swProb x trialType_sw      1     56     11401.61   32178.00   19.84 .000 .00
+    ##  phase x swProb x trialType_sw      1     56       203.53   33833.81    0.34 .564 .00
     ## 
     ## Note. df_num indicates degrees of freedom numerator. df_den indicates degrees of freedom denominator. 
     ## SS_num indicates sum of squares numerator. SS_den indicates sum of squares denominator. 
@@ -71,18 +71,22 @@ RESULTS:
     ## # Groups:   phase, swProb [?]
     ##      phase swProb trialType_sw gpmeanRT    SE_rt gpmeanACC   SE_acc
     ##      <ord>  <ord>        <ord>    <dbl>    <dbl>     <dbl>    <dbl>
-    ## 1 training  sw25%       repeat 794.2884 5.502988  91.08084 0.785299
-    ## 2 training  sw25%       switch 883.6271 5.502988  87.03252 0.785299
-    ## 3 training  sw75%       repeat 801.9320 5.502988  91.87889 0.785299
-    ## 4 training  sw75%       switch 868.9190 5.502988  88.91546 0.785299
-    ## 5   hybrid  sw25%       repeat 781.7211 5.502988  89.56093 0.785299
-    ## 6   hybrid  sw25%       switch 852.6542 5.502988  85.10720 0.785299
-    ## 7   hybrid  sw75%       repeat 791.4430 5.502988  88.72326 0.785299
-    ## 8   hybrid  sw75%       switch 844.8044 5.502988  85.78130 0.785299
+    ## 1 training  sw25%       repeat 794.2884 5.498436  91.08084 0.785299
+    ## 2 training  sw25%       switch 883.6271 5.498436  87.03252 0.785299
+    ## 3 training  sw75%       repeat 802.2540 5.498436  91.87889 0.785299
+    ## 4 training  sw75%       switch 868.9190 5.498436  88.91546 0.785299
+    ## 5   hybrid  sw25%       repeat 781.9632 5.498436  89.56093 0.785299
+    ## 6   hybrid  sw25%       switch 852.7765 5.498436  85.10720 0.785299
+    ## 7   hybrid  sw75%       repeat 791.4430 5.498436  88.72326 0.785299
+    ## 8   hybrid  sw75%       switch 844.9272 5.498436  85.78130 0.785299
 
 #### Figure 1a: Cued - RT
 
-![](figure/Figure1a-1.png) \#\#\#\# Figure 1b: Cued - ACC ![](figure/Figure1b-1.png)
+![](figure/Figure1a-1.png)
+
+#### Figure 1b: Cued - ACC
+
+![](figure/Figure1b-1.png)
 
 ### 2. Choice trials
 
@@ -169,11 +173,11 @@ RESULTS:
     ## ges indicates generalized eta-squared.
     ## 
 
-    ## # A tibble: 2 x 5
-    ##   swProb gpmeanVSR   SE_vsr gpmeanTskRatio  SE_tskR
-    ##    <ord>     <dbl>    <dbl>          <dbl>    <dbl>
-    ## 1  sw25%  32.64858 0.532147       51.49491 1.172383
-    ## 2  sw75%  34.29089 0.532147       50.99056 1.172383
+    ## # A tibble: 2 x 6
+    ##   swProb gpmeanVSR SE_vsr gpmeanTskRatio SE_tskR trialCNT
+    ##    <ord>     <dbl>  <dbl>          <dbl>   <dbl>    <dbl>
+    ## 1  sw25%  32.64858     NA       51.49491      NA 93.66667
+    ## 2  sw75%  34.29089     NA       50.99056      NA 93.57895
 
 #### Figure 3a: VSR ~ swProb
 
@@ -282,13 +286,13 @@ Exploratory analysis
     ##  Pearson's product-moment correlation
     ## 
     ## data:  summary$ISSP_train and summary$meanVSR
-    ## t = 2.188, df = 55, p-value = 0.03294
+    ## t = 2.2298, df = 55, p-value = 0.02986
     ## alternative hypothesis: true correlation is not equal to 0
     ## 95 percent confidence interval:
-    ##  0.02418296 0.50621115
+    ##  0.0295838 0.5102199
     ## sample estimates:
     ##       cor 
-    ## 0.2829675
+    ## 0.2879319
 
 ### 8. Choice trials
 
